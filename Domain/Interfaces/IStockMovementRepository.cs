@@ -4,9 +4,9 @@ namespace Application.Interfaces;
 
 public interface IStockMovementRepository
 {
-    Task<IEnumerable<StockMovement>> GetAllAsync();
-    Task<StockMovement?> GetByIdAsync(int id);
-    Task AddAsync(StockMovement stockMovement);
-    Task UpdateAsync(StockMovement stockMovement);
-    Task DeleteAsync(int id);
+    Task<StockMovement> GetStockMovementByIdAsync(int id);
+    Task<IEnumerable<StockMovement>> GetAllStockMovementsAsync();
+    Task AddStockMovementAsync(StockMovement stockMovement);
+    Task UpdateStockMovementAsync(StockMovement stockMovement);
+    Task DeleteStockMovementAsync(int id);
 }

@@ -4,9 +4,9 @@ namespace Application.Interfaces;
 
 public interface ISaleRepository
 {
-    Task<IEnumerable<Sale>> GetAllAsync();
-    Task<Sale?> GetByIdAsync(int id);
-    Task AddAsync(Sale sale);
-    Task UpdateAsync(Sale sale);
-    Task DeleteAsync(int id);
+    Task<Sale> GetSaleByIdAsync(int id);
+    Task<IEnumerable<Sale>> GetAllSalesAsync();
+    Task AddSaleAsync(Sale sale);
+    Task UpdateSaleAsync(Sale sale);
+    Task DeleteSaleAsync(int id);
 }
