@@ -2,9 +2,17 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Domain.Entities
+namespace Domain.Entities;
+
+public class Category
 {
-    internal class Category
-    {
-    }
+    public int IdCategory { get; set; }
+
+    public string Name { get; set; } = string.Empty;
+
+    public string Description { get; set; } = string.Empty;
+
+    public bool IsActive { get; set; }
+
+    public ICollection<Product> Products { get; set; } = new List<Product>();
 }

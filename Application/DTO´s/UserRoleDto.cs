@@ -2,9 +2,15 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Application.DTO_s
+namespace Application.DTOs;
+
+public class UserRoleDto
 {
-    internal class UserRoleDto
-    {
-    }
+    public int IdRole { get; set; }
+
+    public string Name { get; set; } = string.Empty;
+
+    public string Description { get; set; } = string.Empty;
+
+    public bool IsActive { get; set; }
 }

@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Domain.Enums
+namespace Domain.Enums;
+
+public enum StockMovementType
 {
-    internal class StockMovementType
-    {
-    }
-}
+    Entry,
+    Exit,
+    Adjustment
+}   

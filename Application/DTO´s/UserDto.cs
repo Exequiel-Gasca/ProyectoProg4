@@ -2,9 +2,19 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Application.DTO_s
+namespace Application.DTOs;
+
+public class UserDto
 {
-    internal class UserDto
-    {
-    }
+    public int IdUser { get; set; }
+
+    public string FirstName { get; set; } = string.Empty;
+
+    public string LastName { get; set; } = string.Empty;
+
+    public string Email { get; set; } = string.Empty;
+
+    public bool IsActive { get; set; }
+
+    public int IdRole { get; set; }
 }
