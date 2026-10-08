@@ -6,7 +6,7 @@ namespace Application.DTOs;
 
 public class UserDto
 {
-    public int IdUser { get; set; }
+    public int Id { get; set; }
 
     public string FirstName { get; set; } = string.Empty;
 

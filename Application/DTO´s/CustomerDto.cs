@@ -6,7 +6,7 @@ namespace Application.DTOs;
 
 public class CustomerDto
 {
-    public int IdCustomer { get; set; }
+    public int Id { get; set; }
 
     public string FirstName { get; set; } = string.Empty;
 

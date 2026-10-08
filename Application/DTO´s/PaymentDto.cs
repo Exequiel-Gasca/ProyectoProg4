@@ -7,7 +7,7 @@ namespace Application.DTOs;
 
 public class PaymentDto
 {
-    public int IdPayment { get; set; }
+    public int Id { get; set; }
 
     public DateTime Date { get; set; }
 

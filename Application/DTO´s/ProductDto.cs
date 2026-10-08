@@ -7,7 +7,7 @@ namespace Application.DTOs;
 
 public class ProductDto
 {
-    public int IdProduct { get; set; }
+    public int Id { get; set; }
 
     public string Barcode { get; set; } = string.Empty;
 

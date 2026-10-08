@@ -7,7 +7,7 @@ namespace Application.DTOs;
 
 public class StockMovementDto
 {
-    public int IdStockMovement { get; set; }
+    public int Id { get; set; }
 
     public DateTime Date { get; set; }
 

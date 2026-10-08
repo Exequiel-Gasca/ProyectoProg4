@@ -14,5 +14,5 @@ public class UserRole
 
     public bool IsActive { get; set; }
 
-    public ICollection<User> Users { get; set; } = new List<User>();
+    public ICollection<User> User { get; set; } = new List<User>();
 }

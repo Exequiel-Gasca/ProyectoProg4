@@ -6,7 +6,7 @@ namespace Application.DTOs;
 
 public class UserRoleDto
 {
-    public int IdRole { get; set; }
+    public int Id { get; set; }
 
     public string Name { get; set; } = string.Empty;
 

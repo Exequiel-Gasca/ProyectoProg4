@@ -7,7 +7,7 @@ namespace Application.DTOs;
 
 public class SaleDto
 {
-    public int IdSale { get; set; }
+    public int Id { get; set; }
 
     public DateTime Date { get; set; }
 

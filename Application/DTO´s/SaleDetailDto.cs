@@ -6,7 +6,7 @@ namespace Application.DTOs;
 
 public class SaleDetailDto
 {
-    public int IdSaleDetail { get; set; }
+    public int Id { get; set; }
 
     public float Quantity { get; set; }
 

@@ -22,5 +22,5 @@ public class Customer
 
     public bool IsActive { get; set; }
 
-    public ICollection<Sale> Sales { get; set; } = new List<Sale>();
+    public ICollection<Sale> Sale { get; set; } = new List<Sale>();
 }

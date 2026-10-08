@@ -18,7 +18,7 @@ public class User
 
     public UserRole Role { get; set; } = null!;
 
-    public ICollection<Sale> Sales { get; set; } = new List<Sale>();
+    public ICollection<Sale> Sale { get; set; } = new List<Sale>();
 
-    public ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>();
+    public ICollection<StockMovement> StockMovement { get; set; } = new List<StockMovement>();
 }

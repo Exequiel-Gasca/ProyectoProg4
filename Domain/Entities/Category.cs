@@ -14,5 +14,5 @@ public class Category
 
     public bool IsActive { get; set; }
 
-    public ICollection<Product> Products { get; set; } = new List<Product>();
+    public ICollection<Product> Product { get; set; } = new List<Product>();
 }

@@ -23,7 +23,7 @@ public class Sale
 
     public Customer? Customer { get; set; }
 
-    public ICollection<SaleDetail> Details { get; set; } = new List<SaleDetail>();
+    public ICollection<SaleDetail> Detail { get; set; } = new List<SaleDetail>();
 
     public Payment? Payment { get; set; }
 }
