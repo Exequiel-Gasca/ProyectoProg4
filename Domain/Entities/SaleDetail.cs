@@ -6,7 +6,7 @@ namespace Domain.Entities;
 
 public class SaleDetail
 {
-    public int IdSaleDetail { get; set; }
+    public int Id { get; set; }
 
     public float Quantity { get; set; }
 

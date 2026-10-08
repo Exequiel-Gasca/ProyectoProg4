@@ -6,7 +6,7 @@ namespace Domain.Entities;
 
 public class Customer
 {
-    public int IdCustomer { get; set; }
+    public int Id { get; set; }
 
     public string FirstName { get; set; } = string.Empty;
 

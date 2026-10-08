@@ -7,7 +7,7 @@ namespace Domain.Entities;
 
 public class StockMovement
 {
-    public int IdStockMovement { get; set; }
+    public int Id { get; set; }
 
     public DateTime Date { get; set; }
 
