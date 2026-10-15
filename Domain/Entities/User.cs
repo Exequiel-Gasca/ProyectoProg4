@@ -14,9 +14,9 @@ public class User
 
     public bool IsActive { get; set; }
 
-    public int IdRole { get; set; }
+    public int RoleId { get; set; }
 
-    public UserRole Role { get; set; } = null!;
+    public required UserRole Role { get; set; }
 
     public ICollection<Sale> Sale { get; set; } = new List<Sale>();
 

@@ -16,7 +16,7 @@ public class SaleRepository : ISaleRepository
     public async Task<Sale> GetSaleByIdAsync(int id)
     {
         return await _context.Sale
-            .Include(s => s.Details)
+            .Include(s => s.Detail)
             .Include(s => s.Payment)
             .FirstOrDefaultAsync(s => s.Id == id);
     }
@@ -24,7 +24,7 @@ public class SaleRepository : ISaleRepository
     public async Task<IEnumerable<Sale>> GetAllSalesAsync()
     {
         return await _context.Sale
-            .Include(s => s.Details)
+            .Include(s => s.Detail)
             .Include(s => s.Payment)
             .ToListAsync();
     }

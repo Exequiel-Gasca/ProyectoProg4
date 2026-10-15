@@ -17,11 +17,11 @@ public class StockMovement
 
     public string Reason { get; set; } = string.Empty;
 
-    public int IdProduct { get; set; }
+    public int ProductId { get; set; }
 
-    public Product Product { get; set; } = null!;
+    public required Product Product { get; set; }
 
-    public int IdUser { get; set; }
+    public int UserId { get; set; }
 
-    public User User { get; set; } = null!;
+    public required User User { get; set; }
 }

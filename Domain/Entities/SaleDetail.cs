@@ -16,9 +16,9 @@ public class SaleDetail
 
     public int IdSale { get; set; }
 
-    public Sale Sale { get; set; } = null!;
+    public required Sale Sale { get; set; }
 
-    public int IdProduct { get; set; }
+    public int ProductId { get; set; }
 
-    public Product Product { get; set; } = null!;
+    public required Product Product { get; set; }
 }

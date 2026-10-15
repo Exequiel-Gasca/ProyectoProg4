@@ -17,7 +17,7 @@ public class Payment
 
     public PaymentMethod PaymentMethod { get; set; }
 
-    public int IdSale { get; set; }
+    public int SaleId { get; set; }
 
-    public Sale Sale { get; set; } = null!;
+    public required Sale Sale { get; set; }
 }

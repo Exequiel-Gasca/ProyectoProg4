@@ -15,15 +15,15 @@ public class Sale
 
     public SaleStatus Status { get; set; }
 
-    public int IdUser { get; set; }
+    public int UserId { get; set; }
 
-    public User User { get; set; } = null!;
+    public required User User { get; set; }
 
-    public int? IdCustomer { get; set; }
+    public int? CustomerId { get; set; }
 
     public Customer? Customer { get; set; }
 
     public ICollection<SaleDetail> Detail { get; set; } = new List<SaleDetail>();
 
-    public Payment? Payment { get; set; }
+    public ICollection<Payment> Payment { get; set; } = new List<Payment>();
 }

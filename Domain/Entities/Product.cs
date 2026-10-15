@@ -27,9 +27,9 @@ public class Product
 
     public bool IsActive { get; set; }
 
-    public int IdCategory { get; set; }
+    public int CategoryId { get; set; }
 
-    public Category Category { get; set; } = null!;
+    public required Category Category { get; set; }
 
     public ICollection<SaleDetail> SaleDetails { get; set; } = new List<SaleDetail>();
 
