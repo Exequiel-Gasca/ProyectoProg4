@@ -13,10 +13,11 @@ public class SaleRepository : ISaleRepository
         _context = context;
     }
 
-    public async Task<Sale> GetSaleByIdAsync(int id)
+    public async Task<Sale?> GetSaleByIdAsync(int id)
     {
         return await _context.Sale
             .Include(s => s.Detail)
+                .ThenInclude(d => d.Product)
             .Include(s => s.Payment)
             .FirstOrDefaultAsync(s => s.Id == id);
     }
@@ -25,7 +26,20 @@ public class SaleRepository : ISaleRepository
     {
         return await _context.Sale
             .Include(s => s.Detail)
+                .ThenInclude(d => d.Product)
             .Include(s => s.Payment)
+            .ToListAsync();
+    }
+
+    public async Task<IEnumerable<Sale>> GetSalesByDateRangeAsync(
+        DateTime startDate,
+        DateTime endDate)
+    {
+        return await _context.Sale
+            .Include(s => s.Detail)
+                .ThenInclude(d => d.Product)
+            .Include(s => s.Payment)
+            .Where(s => s.Date >= startDate && s.Date <= endDate)
             .ToListAsync();
     }
 
@@ -39,16 +53,5 @@ public class SaleRepository : ISaleRepository
     {
         _context.Sale.Update(sale);
         await _context.SaveChangesAsync();
-    }
-
-    public async Task DeleteSaleAsync(int id)
-    {
-        var sale = await _context.Sale.FindAsync(id);
-
-        if (sale != null)
-        {
-            _context.Sale.Remove(sale);
-            await _context.SaveChangesAsync();
-        }
     }
 }
