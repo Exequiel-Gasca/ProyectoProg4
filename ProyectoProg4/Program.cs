@@ -1,5 +1,8 @@
+using Application;
 using Infraestructure;
 using Microsoft.EntityFrameworkCore;
+
+
 var builder = WebApplication.CreateBuilder(args);
 // Agregar el ApplicationDbContext al contenedor de servicios
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
@@ -9,6 +12,12 @@ builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 // (los AddScoped de repositorios y servicios se agregan en el paso 11)
+builder.Services.AddHttpClient(HttpClientNames.MercadoPago, client =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["ExternalApis:MercadoPago:BaseUrl"]!);
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -23,6 +32,7 @@ if (app.Environment.IsDevelopment())
         );
     });
 }
+
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
