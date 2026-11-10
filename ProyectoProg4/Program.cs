@@ -1,6 +1,9 @@
 using Application;
 using Infraestructure;
+using System.Net.Http.Headers;
 using Microsoft.EntityFrameworkCore;
+using Application.Interfaces;
+using Application.Services;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,7 +19,16 @@ builder.Services.AddHttpClient(HttpClientNames.MercadoPago, client =>
 {
     client.BaseAddress = new Uri(builder.Configuration["ExternalApis:MercadoPago:BaseUrl"]!);
     client.Timeout = TimeSpan.FromSeconds(10);
+    client.DefaultRequestHeaders.Add("Accept", "application/json");
+    string? accessToken = builder.Configuration["ExternalApis:MercadoPago:AccessToken"];
+if (!string.IsNullOrWhiteSpace(accessToken))
+    {
+    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+    }
+
 });
+
+builder.Services.AddScoped<IMercadoPagoService,MercadoPagoServices>();
 
 var app = builder.Build();
 

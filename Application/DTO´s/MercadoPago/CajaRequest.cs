@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.Json.Serialization;
 
-namespace Domain.Entities.MercadoPagoEntities
+namespace Application.DTO_s.MercadoPago
 {
-    public class PostCaja
+    public class CajaRequest
     {
         public string Name { get; set; } = string.Empty;
         [JsonPropertyName("store_id")]
