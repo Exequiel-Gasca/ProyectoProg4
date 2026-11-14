@@ -21,48 +21,62 @@ namespace Application.Services
         }
         public async Task<List<SucursalResponse>> GetAllSucursalesAsync()
         {
-            var url = $"users/{_userId}/stores/search";
+            string url = $"users/{_userId}/stores/search";
             var sucursales = await _client.GetFromJsonAsync<List<SucursalResponse>>(url);
             return sucursales ?? new List<SucursalResponse>();
         }
         public async Task<SucursalResponse?> GetSucursalesByIdAsync(long Id)
         {
-            var url = $"stores/:{Id}";
+            string url = $"stores/:{Id}";
             return await _client.GetFromJsonAsync<SucursalResponse>(url);
         }
         public async Task<SucursalResponse?> CreateSucursalesAsync(SucursalRequest sucursalRequest)
         {
-            throw new Exception("");
+            string url = $"users/:{_userId}/stores";
+            HttpResponseMessage response = await _client.PostAsJsonAsync(url, sucursalRequest);
+            return await response.Content.ReadFromJsonAsync<SucursalResponse>();
         }
 
-        public async Task<SucursalResponse?> UpdateSucursalesAsync(int Id, SucursalRequest sucursalRequest)
+        public async Task<SucursalResponse?> UpdateSucursalesAsync(long Id, SucursalRequest sucursalRequest)
         {
-            throw new Exception("");
+            string url = $"users/:{_userId}/stores/:{Id}";
+            HttpResponseMessage response= await _client.PutAsJsonAsync(url, sucursalRequest);
+            return await response.Content.ReadFromJsonAsync<SucursalResponse>();
         }
 
-        public async Task DeleteSucursalesAsync(int Id)
+        public async Task DeleteSucursalesAsync(long Id)
         {
-            throw new Exception("");
+            string url = $"users/:{_userId}/stores/:{Id}";
+            HttpResponseMessage response = await _client.DeleteAsync(url);
         }
         public async Task<List<CajaResponse>> GetAllCajasAsync()
         {
-            throw new Exception("");
+            string url = "pos";
+            var response = await _client.GetFromJsonAsync<List<CajaResponse>>(url);
+            return response?? new List<CajaResponse>();
         }
-        public async Task<CajaResponse?> GetCajasByIdAsync(int Id)
+        public async Task<CajaResponse?> GetCajasByIdAsync(long Id)
         {
-            throw new Exception("");
+            string url = $"pos/:{Id}";
+            return await _client.GetFromJsonAsync<CajaResponse>(url);
+            
         }
         public async Task<CajaResponse?> CreateCajasAsync(CajaRequest cajaRequest)
         {
-            throw new Exception("");
+            string url = "pos";
+            var response = await _client.PostAsJsonAsync(url,cajaRequest);
+            return await response.Content.ReadFromJsonAsync<CajaResponse>();
         }
-        public async Task<CajaResponse?> UpdateCajasAsync(int Id, CajaRequest cajaRequest)
+        public async Task<CajaResponse?> UpdateCajasAsync(long Id, CajaRequest cajaRequest)
         {
-            throw new Exception("");
+            string url = $"pos/:{Id}";
+            var response = await _client.PutAsJsonAsync(url,cajaRequest);
+            return await response.Content.ReadFromJsonAsync<CajaResponse>(); 
         }
-        public async Task DeleteCajasAsync(int Id)
+        public async Task DeleteCajasAsync(long Id)
         {
-            throw new Exception("");
+            string url = $"pos/:{Id}";
+            var response = await _client.DeleteAsync(url);
         }
 
     }

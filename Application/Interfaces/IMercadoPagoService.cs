@@ -10,12 +10,12 @@ namespace Application.Interfaces
         Task<List<SucursalResponse>> GetAllSucursalesAsync();
         Task<SucursalResponse?> GetSucursalesByIdAsync(long Id);
         Task<SucursalResponse?> CreateSucursalesAsync(SucursalRequest sucursalRequest);
-        Task<SucursalResponse?> UpdateSucursalesAsync(int Id, SucursalRequest sucursalRequest);
-        Task DeleteSucursalesAsync(int Id);
+        Task<SucursalResponse?> UpdateSucursalesAsync(long Id, SucursalRequest sucursalRequest);
+        Task DeleteSucursalesAsync(long Id);
         Task<List<CajaResponse>> GetAllCajasAsync();
-        Task<CajaResponse?> GetCajasByIdAsync(int Id);
+        Task<CajaResponse?> GetCajasByIdAsync(long Id);
         Task<CajaResponse?> CreateCajasAsync(CajaRequest CajaRequest);
-        Task<CajaResponse?> UpdateCajasAsync(int Id, CajaRequest CajaRequest);
-        Task DeleteCajasAsync(int Id);
+        Task<CajaResponse?> UpdateCajasAsync(long Id, CajaRequest CajaRequest);
+        Task DeleteCajasAsync(long Id);
     }
 }
