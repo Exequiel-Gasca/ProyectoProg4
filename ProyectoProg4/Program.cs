@@ -1,9 +1,11 @@
 using Application;
-using Infraestructure;
-using System.Net.Http.Headers;
-using Microsoft.EntityFrameworkCore;
 using Application.Interfaces;
 using Application.Services;
+using Domain.Interfaces;
+using Infraestructure;
+using Infraestructure.Repositories;
+using Microsoft.EntityFrameworkCore;
+using System.Net.Http.Headers;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +16,11 @@ options.UseSqlServer(connectionString));
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IUserRoleService, UserRoleService>();
+builder.Services.AddScoped<IUserService, UserService>();
 // (los AddScoped de repositorios y servicios se agregan en el paso 11)
 builder.Services.AddHttpClient(HttpClientNames.MercadoPago, client =>
 {

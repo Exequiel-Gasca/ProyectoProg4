@@ -16,7 +16,7 @@ public class SaleController : ControllerBase
         _saleService = saleService;
     }
     [HttpGet]
-    public ActionResult<List<UserDto>> Get()
+    public ActionResult<List<SaleDto>> Get()
     {
         var sale = _saleService.GetAllSalesAsync();
         return Ok(sale);

@@ -1,17 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Domain.Entities;
+﻿using Domain.Entities;
 
-namespace Domain.Interfaces
+namespace Domain.Interfaces;
 
+public interface IUserRepository
 {
-    public interface IUserRepository
-    {
-        Task<User> GetUserByIdAsync(int id);
-        Task<IEnumerable<User>> GetAllUsersAsync();
-        Task AddUserAsync(User user);
-        Task UpdateUserAsync(User user);
-        Task DeleteUserAsync(int id);
-    }
+    Task<User?> GetUserByIdAsync(int id);
+    Task<User?> GetUserByEmailAsync(string email);
+    Task<IEnumerable<User>> GetAllUsersAsync();
+    Task AddUserAsync(User user);
+    Task UpdateUserAsync(User user);
 }

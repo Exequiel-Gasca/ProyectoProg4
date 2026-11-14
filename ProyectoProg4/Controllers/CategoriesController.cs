@@ -15,7 +15,7 @@ public class CategoriesController : ControllerBase
         _categoryService = categoryService;
     }
     [HttpGet]
-    public ActionResult<List<UserDto>> Get()
+    public ActionResult<List<CategoryDto>> Get()
     {
         var categories = _categoryService.GetAllCategoriesAsync();
         return Ok(categories);
