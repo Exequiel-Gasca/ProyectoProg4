@@ -1,12 +1,14 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs;
+using Domain.Entities;
 
 namespace Application.Interfaces;
 
 public interface IStockMovementService
 {
-    Task<StockMovement?> GetStockMovementByIdAsync(int id);
-    Task<IEnumerable<StockMovement>> GetAllStockMovementsAsync();
-    Task AddStockMovementAsync(StockMovement stockMovement);
-    Task UpdateStockMovementAsync(StockMovement stockMovement);
+    Task<StockMovementDto?> GetStockMovementByIdAsync(int id);
+    Task<IEnumerable<StockMovementDto>> GetAllStockMovementsAsync();
+    Task<StockMovementDto> AddStockMovementAsync(StockMovement stockMovement);
+    Task<StockMovementDto> UpdateStockMovementAsync(int id,StockMovement stockMovement);
     Task DeleteStockMovementAsync(int id);
+    Task UpdateStock(StockMovement stockMovement);
 }

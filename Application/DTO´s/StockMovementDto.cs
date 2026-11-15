@@ -17,7 +17,7 @@ public class StockMovementDto
 
     public string Reason { get; set; } = string.Empty;
 
-    public int IdProduct { get; set; }
+    public int ProductId { get; set; }
 
-    public int IdUser { get; set; }
+    public int UserId { get; set; }
 }
