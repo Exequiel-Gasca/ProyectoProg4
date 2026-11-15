@@ -16,7 +16,7 @@ public class StockMovementController : ControllerBase
         _stockmovementService = stockmovementService;
     }
     [HttpGet]
-    public ActionResult<List<UserDto>> Get()
+    public ActionResult<List<StockMovementDto>> Get()
     {
         var StockMovement = _stockmovementService.GetAllStockMovementsAsync();
         return Ok(StockMovement);

@@ -15,7 +15,7 @@ public class CustomerController : ControllerBase
         _customerService = customerService;
     }
     [HttpGet]
-    public ActionResult<List<UserDto>> Get()
+    public ActionResult<List<CustomerDto>> Get()
     {
         var customer = _customerService.GetAllCustomerAsync();
         return Ok(customer);

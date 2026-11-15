@@ -15,7 +15,7 @@ public class PaymentsController : ControllerBase
         _paymentService = paymentService;
     }
     [HttpGet]
-    public ActionResult<List<UserDto>> Get()
+    public ActionResult<List<PaymentDto>> Get()
     {
         var payment = _paymentService.GetAllPaymentsAsync();
         return Ok(payment);
