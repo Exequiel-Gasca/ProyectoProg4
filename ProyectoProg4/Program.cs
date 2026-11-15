@@ -1,3 +1,4 @@
+
 using Application;
 using Application.Interfaces;
 using Application.Services;
@@ -7,49 +8,125 @@ using Infraestructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.Net.Http.Headers;
 
-
 var builder = WebApplication.CreateBuilder(args);
-// Agregar el ApplicationDbContext al contenedor de servicios
-string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+
+// BASE DE DATOS
+
+string connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException(
+        "No se encontró la cadena de conexión DefaultConnection.");
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-options.UseSqlServer(connectionString));
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-builder.Services.AddEndpointsApiExplorer();
+    options.UseSqlServer(connectionString));
+
+// REPOSITORIOS
+
+// Categorías
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+
+// Clientes
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+
+// Pagos
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+
+// Productos
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+
+// Ventas
+builder.Services.AddScoped<ISaleRepository, SaleRepository>();
+
+// Detalles de venta
+builder.Services.AddScoped<ISaleDetailRepository, SaleDetailRepository>();
+
+// Movimientos de stock
+builder.Services.AddScoped<IStockMovementRepository, StockMovementRepository>();
+
+// Usuarios
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// Roles
 builder.Services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+
+
+// SERVICIOS
+
+// Categorías
+builder.Services.AddScoped<ICategoryService, CategoryService>();
+
+// Clientes
+builder.Services.AddScoped<ICustomerService, CustomerService>();
+
+// Pagos
+builder.Services.AddScoped<IPaymentService, PaymentService>();
+
+// Productos
+builder.Services.AddScoped<IProductService, ProductService>();
+
+// Ventas
+builder.Services.AddScoped<ISaleService, SaleService>();
+
+// Detalles de venta
+builder.Services.AddScoped<ISaleDetailService, SaleDetailService>();
+
+// Usuarios
 builder.Services.AddScoped<IUserService, UserService>();
+
+// Roles
 builder.Services.AddScoped<IUserRoleService, UserRoleService>();
-builder.Services.AddScoped<IUserService, UserService>();
-// (los AddScoped de repositorios y servicios se agregan en el paso 11)
+
+
+// MERCADO PAGO
+
 builder.Services.AddHttpClient(HttpClientNames.MercadoPago, client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ExternalApis:MercadoPago:BaseUrl"]!);
-    client.Timeout = TimeSpan.FromSeconds(10);
-    client.DefaultRequestHeaders.Add("Accept", "application/json");
-    string? accessToken = builder.Configuration["ExternalApis:MercadoPago:AccessToken"];
-if (!string.IsNullOrWhiteSpace(accessToken))
+    var baseUrl = builder.Configuration[
+        "ExternalApis:MercadoPago:BaseUrl"];
+
+    if (!string.IsNullOrWhiteSpace(baseUrl))
     {
-    client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+        client.BaseAddress = new Uri(baseUrl);
     }
 
+    client.Timeout = TimeSpan.FromSeconds(10);
+
+    client.DefaultRequestHeaders.Accept.Add(
+        new MediaTypeWithQualityHeaderValue("application/json"));
+
+    string? accessToken = builder.Configuration[
+        "ExternalApis:MercadoPago:AccessToken"];
+
+    if (!string.IsNullOrWhiteSpace(accessToken))
+    {
+        client.DefaultRequestHeaders.Authorization =
+            new AuthenticationHeaderValue("Bearer", accessToken);
+    }
 });
 
-builder.Services.AddScoped<IMercadoPagoService,MercadoPagoServices>();
+builder.Services.AddScoped<IMercadoPagoService, MercadoPagoServices>();
+
+
+// CONTROLADORES Y SWAGGER
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
+
+// CONFIGURACION DE AUTORIZACION
+
+builder.Services.AddAuthorization();
+
+
+// CONFIGURACION DE LA APLICACION
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
-
-    app.UseSwaggerUI(options =>
-    {
-        options.SwaggerEndpoint(
-            "/openapi/v1.json",
-            "API v1"
-        );
-    });
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
