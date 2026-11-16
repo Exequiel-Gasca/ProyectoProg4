@@ -20,6 +20,13 @@ public class PaymentRepository : IPaymentRepository
             .FirstOrDefaultAsync(p => p.Id == id);
     }
 
+    public async Task<Payment?> GetByExternalOrderIdAsync(string externalOrderId)
+    {
+        return await _context.Payment
+            .Include(p => p.Sale)
+            .FirstOrDefaultAsync(p => p.ExternalOrderId == externalOrderId);
+    }
+
     public async Task<IEnumerable<Payment>> GetAllPaymentsAsync()
     {
         return await _context.Payment

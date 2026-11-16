@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Application
+namespace Infraestructure
 {
     public static class HttpClientNames
     {
