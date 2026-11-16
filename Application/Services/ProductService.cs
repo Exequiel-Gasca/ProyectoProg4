@@ -50,11 +50,11 @@ public class ProductService : IProductService
         if (string.IsNullOrWhiteSpace(product.Barcode))
             throw new ArgumentException("El código de barras es obligatorio.");
 
-        if (product.SalePrice < 0 || product.Cost < 0)
-            throw new ArgumentException("Los precios no pueden ser negativos.");
+        if (product.SalePrice <= 0)
+            throw new ArgumentException("El precio de venta debe ser mayor a cero.");
 
-        if (product.CurrentStock < 0 || product.MinimumStock < 0)
-            throw new ArgumentException("El stock no puede ser negativo.");
+        if (product.Cost < 0)
+            throw new ArgumentException("El costo no puede ser negativo.");
 
         var existingProduct =
             await _productRepository.GetByBarcodeAsync(product.Barcode.Trim());
@@ -100,12 +100,11 @@ public class ProductService : IProductService
                 "El nombre y el código de barras son obligatorios.");
         }
 
-        if (product.SalePrice < 0 || product.Cost < 0 ||
-            product.CurrentStock < 0 || product.MinimumStock < 0)
-        {
-            throw new ArgumentException(
-                "Los precios y el stock no pueden ser negativos.");
-        }
+        if (product.SalePrice <= 0)
+            throw new ArgumentException("El precio de venta debe ser mayor a cero.");
+
+        if (product.Cost < 0 || product.MinimumStock < 0)
+            throw new ArgumentException("El costo y el stock mínimo no pueden ser negativos.");
 
         var barcodeProduct =
             await _productRepository.GetByBarcodeAsync(product.Barcode.Trim());
@@ -126,7 +125,6 @@ public class ProductService : IProductService
         existingProduct.Description = product.Description?.Trim() ?? string.Empty;
         existingProduct.SalePrice = product.SalePrice;
         existingProduct.Cost = product.Cost;
-        existingProduct.CurrentStock = product.CurrentStock;
         existingProduct.MinimumStock = product.MinimumStock;
         existingProduct.MeasurementUnit = product.MeasurementUnit;
         existingProduct.IsActive = product.IsActive;
@@ -136,7 +134,7 @@ public class ProductService : IProductService
         await _productRepository.UpdateProductAsync(existingProduct);
     }
 
-    public async Task DeleteProductAsync(int id)
+    public async Task DeactivateProductAsync(int id)
     {
         if (id <= 0)
             throw new ArgumentException("El ID del producto no es válido.");
@@ -146,6 +144,11 @@ public class ProductService : IProductService
         if (product == null)
             throw new KeyNotFoundException("No se encontró el producto.");
 
-        await _productRepository.DeleteProductAsync(id);
+        if (!product.IsActive)
+            throw new InvalidOperationException("El producto ya está inactivo.");
+
+        product.IsActive = false;
+
+        await _productRepository.UpdateProductAsync(product);
     }
 }
