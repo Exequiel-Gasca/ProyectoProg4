@@ -2,6 +2,7 @@
 using Application.DTOs;
 using Application.Interfaces;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProyectoProg4.Controllers;
@@ -17,7 +18,7 @@ public class UsersController : ControllerBase
         _userService = userService;
     }
 
-    // [Authorize(Roles = "Admin,SuperAdmin")]  <- activar cuando esté el JWT
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [HttpGet]
     public async Task<ActionResult<List<UserDto>>> Get()
     {
@@ -25,9 +26,13 @@ public class UsersController : ControllerBase
         return Ok(users.Select(ToDto).ToList());
     }
 
+    [Authorize]
     [HttpGet("{id}")]
     public async Task<ActionResult<UserDto>> GetById(int id)
     {
+        if (!CanAccess(id))
+            return Forbid();
+
         var user = await _userService.GetUserByIdAsync(id);
 
         if (user == null)
@@ -36,6 +41,7 @@ public class UsersController : ControllerBase
         return Ok(ToDto(user));
     }
 
+    [AllowAnonymous]
     [HttpPost("register")]
     public async Task<ActionResult<UserDto>> Register(RegisterUserDto dto)
     {
@@ -62,10 +68,13 @@ public class UsersController : ControllerBase
         }
     }
 
-    // [Authorize]
+    [Authorize]
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, UpdateUserDto dto)
     {
+        if (!CanAccess(id))
+            return Forbid();
+
         try
         {
             var user = new User
@@ -93,12 +102,12 @@ public class UsersController : ControllerBase
         }
     }
 
-    // [Authorize(Roles = "SuperAdmin")]
+    [Authorize(Roles = "SuperAdmin")]
     [HttpPut("{id}/role")]
     public async Task<IActionResult> ChangeRole(int id, ChangeRoleDto dto)
     {
-        // El id de quien actúa sale del token, nunca del body
-        var claim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        var claim = User.FindFirstValue("sub");
         if (!int.TryParse(claim, out var actingUserId))
             return Unauthorized();
 
@@ -121,7 +130,7 @@ public class UsersController : ControllerBase
         }
     }
 
-    // [Authorize(Roles = "Admin,SuperAdmin")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     [HttpDelete("{id}")]
     public async Task<IActionResult> Deactivate(int id)
     {
@@ -138,6 +147,16 @@ public class UsersController : ControllerBase
         {
             return Conflict(new { error = ex.Message });
         }
+    }
+
+    // true si quien llama es el dueño de la cuenta o es Admin/SuperAdmin
+    private bool CanAccess(int targetUserId)
+    {
+        if (User.IsInRole("Admin") || User.IsInRole("SuperAdmin"))
+            return true;
+
+        var claim = User.FindFirstValue("sub");
+        return int.TryParse(claim, out var currentId) && currentId == targetUserId;
     }
 
     private static UserDto ToDto(User u) => new()
