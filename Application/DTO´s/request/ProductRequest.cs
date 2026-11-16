@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Domain.Enums;
+﻿namespace Application.DTOs.Requests.Products;
 
-namespace Application.DTOs;
-
-public class ProductDto
+public class ProductRequest
 {
-    public int Id { get; set; }
-
     public string Barcode { get; set; } = string.Empty;
 
     public string Name { get; set; } = string.Empty;
@@ -17,13 +10,15 @@ public class ProductDto
 
     public decimal SalePrice { get; set; }
 
+    public decimal Cost { get; set; }
+
     public float CurrentStock { get; set; }
 
-    public MeasurementUnit MeasurementUnit { get; set; }
+    public int MeasurementUnit { get; set; }
 
     public float MinimumStock { get; set; }
 
     public bool IsActive { get; set; }
 
-    public int IdCategory { get; set; }
+    public int CategoryId { get; set; }
 }

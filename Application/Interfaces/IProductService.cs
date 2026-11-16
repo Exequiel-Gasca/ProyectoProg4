@@ -1,13 +1,20 @@
-﻿using Domain.Entities;
+﻿
+using Application.DTOs.Requests.Products;
+using Application.DTOs.Responses.Products;
 
 namespace Application.Interfaces;
 
 public interface IProductService
 {
-    Task<Product?> GetProductByIdAsync(int id);
-    Task<IEnumerable<Product>> GetAllProductsAsync();
-    Task AddProductAsync(Product product);
-    Task UpdateProductAsync(Product product);
-    Task<Product?> GetByBarcodeAsync(string barcode);
+    Task<ProductResponse?> GetProductByIdAsync(int id);
+
+    Task<IEnumerable<ProductResponse>> GetAllProductsAsync();
+
+    Task<ProductResponse?> GetByBarcodeAsync(string barcode);
+
+    Task AddProductAsync(ProductRequest productRequest);
+
+    Task UpdateProductAsync(int id, ProductRequest productRequest);
+
     Task DeleteProductAsync(int id);
 }
