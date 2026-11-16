@@ -1,7 +1,4 @@
 ﻿using Application.DTO_s.MercadoPago;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Application.Interfaces
 {
@@ -17,5 +14,12 @@ namespace Application.Interfaces
         Task<CajaResponse?> CreateCajasAsync(CajaRequest CajaRequest);
         Task<CajaResponse?> UpdateCajasAsync(long Id, CajaRequest CajaRequest);
         Task DeleteCajasAsync(long Id);
+        Task<OrderResponse?> CreateOrderAsync(OrderRequest request);
+        Task<OrderResponse?> GetOrderByIdAsync(string orderId);
+        Task<OrderResponse?> CancelOrderAsync(string orderId);
+        Task<OrderResponse?> RefundOrderTotalAsync(string orderId);
+        Task<OrderResponse?> RefundOrderPartialAsync(string orderId, PartialRefundRequest request);
+        bool ValidateWebhookSignature(string xSignature, string xRequestId, string dataId);
+        Task ProcessWebhookAsync(WebhookNotificationDto notification);
     }
 }

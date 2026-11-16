@@ -8,5 +8,6 @@ public enum PaymentMethod
 {
     Cash,
     Card,
-    BankTransfer
+    BankTransfer,
+    MercadoPagoQr
 }

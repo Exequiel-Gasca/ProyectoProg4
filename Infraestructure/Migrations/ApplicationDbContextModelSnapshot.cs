@@ -100,6 +100,12 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("ExternalOrderId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExternalPaymentId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("PaymentMethod")
                         .HasColumnType("int");
 

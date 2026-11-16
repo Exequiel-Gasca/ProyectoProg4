@@ -4,6 +4,7 @@ using Application.Interfaces;
 using Application.Services;
 using Domain.Interfaces;
 using Infraestructure;
+using Infrastructure.ApisServices;
 using Infraestructure.Repositories;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;

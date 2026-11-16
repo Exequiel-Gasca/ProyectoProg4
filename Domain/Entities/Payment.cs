@@ -20,4 +20,7 @@ public class Payment
     public int SaleId { get; set; }
 
     public required Sale Sale { get; set; }
+    
+    public string? ExternalOrderId { get; set; }
+    public string? ExternalPaymentId { get; set; }
 }
