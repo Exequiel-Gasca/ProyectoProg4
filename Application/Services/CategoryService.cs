@@ -77,6 +77,40 @@ public class CategoryService : ICategoryService
 
         await _categoryRepository.UpdateCategoryAsync(existingCategory);
     }
+    public async Task DeactivateCategoryAsync(int id)
+    {
+        if (id <= 0)
+            throw new ArgumentException("El ID de la categoría no es válido.");
+
+        var category = await _categoryRepository.GetCategoryByIdAsync(id);
+
+        if (category == null)
+            throw new KeyNotFoundException("No se encontró la categoría.");
+
+        if (!category.IsActive)
+            throw new InvalidOperationException("La categoría ya está inactiva.");
+
+        category.IsActive = false;
+
+        await _categoryRepository.UpdateCategoryAsync(category);
+    }
+
+    public async Task DeleteCategoryAsync(int id)
+    {
+        if (id <= 0)
+            throw new ArgumentException("El ID de la categoría no es válido.");
+
+        var category = await _categoryRepository.GetCategoryByIdAsync(id);
+
+        if (category == null)
+            throw new KeyNotFoundException("No se encontró la categoría.");
+
+        if (await _categoryRepository.HasProductsAsync(id))
+            throw new InvalidOperationException(
+                "No se puede eliminar una categoría que tiene productos. Desactivala en su lugar.");
+
+        await _categoryRepository.DeleteCategoryAsync(id);
+    }
 
     private static CategoryResponseDto MapToResponse(Category category)
     {

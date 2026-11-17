@@ -53,7 +53,7 @@ public class ProductService : IProductService
         return MapToResponse(product);
     }
 
-    public async Task AddProductAsync(ProductRequestDto productRequest)
+    public async Task<ProductResponseDto> AddProductAsync(ProductRequestDto productRequest)
     {
         if (productRequest == null)
             throw new ArgumentNullException(nameof(productRequest));
@@ -64,11 +64,11 @@ public class ProductService : IProductService
         if (string.IsNullOrWhiteSpace(productRequest.Barcode))
             throw new ArgumentException("El código de barras es obligatorio.");
 
-        if (productRequest.SalePrice < 0 || productRequest.Cost < 0)
-            throw new ArgumentException("Los precios no pueden ser negativos.");
+        if (productRequest.SalePrice <= 0)
+            throw new ArgumentException("El precio de venta debe ser mayor a cero.");
 
-        if (productRequest.CurrentStock < 0 || productRequest.MinimumStock < 0)
-            throw new ArgumentException("El stock no puede ser negativo.");
+        if (productRequest.Cost < 0)
+            throw new ArgumentException("El costo no puede ser negativo.");
 
         var existingProduct =
             await _productRepository.GetByBarcodeAsync(productRequest.Barcode.Trim());
@@ -100,8 +100,9 @@ public class ProductService : IProductService
         };
 
         await _productRepository.AddProductAsync(product);
-    }
 
+        return MapToResponse(product);
+    }
     public async Task UpdateProductAsync(int id, ProductRequestDto productRequest)
     {
         if (productRequest == null)
@@ -123,12 +124,12 @@ public class ProductService : IProductService
                 "El nombre y el código de barras son obligatorios.");
         }
 
-        if (productRequest.SalePrice < 0 || productRequest.Cost < 0 ||
-            productRequest.CurrentStock < 0 || productRequest.MinimumStock < 0)
-        {
+        if (productRequest.SalePrice <= 0)
+            throw new ArgumentException("El precio de venta debe ser mayor a cero.");
+
+        if (productRequest.Cost < 0 || productRequest.MinimumStock < 0)
             throw new ArgumentException(
-                "Los precios y el stock no pueden ser negativos.");
-        }
+                "El costo y el stock mínimo no pueden ser negativos.");
 
         var barcodeProduct =
             await _productRepository.GetByBarcodeAsync(productRequest.Barcode.Trim());
@@ -159,7 +160,7 @@ public class ProductService : IProductService
         await _productRepository.UpdateProductAsync(existingProduct);
     }
 
-    public async Task DeleteProductAsync(int id)
+    public async Task DeactivateProductAsync(int id)
     {
         if (id <= 0)
             throw new ArgumentException("El ID del producto no es válido.");
@@ -169,9 +170,13 @@ public class ProductService : IProductService
         if (product == null)
             throw new KeyNotFoundException("No se encontró el producto.");
 
-        await _productRepository.DeleteProductAsync(id);
-    }
+        if (!product.IsActive)
+            throw new InvalidOperationException("El producto ya está inactivo.");
 
+        product.IsActive = false;
+
+        await _productRepository.UpdateProductAsync(product);
+    }
     private static ProductResponseDto MapToResponse(Product product)
     {
         return new ProductResponseDto

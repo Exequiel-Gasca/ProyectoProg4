@@ -12,9 +12,8 @@ public interface IProductService
 
     Task<ProductResponseDto?> GetByBarcodeAsync(string barcode);
 
-    Task AddProductAsync(ProductRequestDto productRequest);
+    Task<ProductResponseDto> AddProductAsync(ProductRequestDto productRequest);
+    Task DeactivateProductAsync(int id);
 
     Task UpdateProductAsync(int id, ProductRequestDto productRequest);
-
-    Task DeleteProductAsync(int id);
 }
