@@ -13,4 +13,7 @@ public interface ICategoryService
     Task AddCategoryAsync(CategoryRequestDto categoryRequest);
 
     Task UpdateCategoryAsync(int id, CategoryRequestDto categoryRequest);
+
+    Task DeactivateCategoryAsync(int id);
+    Task DeleteCategoryAsync(int id);
 }
