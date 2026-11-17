@@ -20,7 +20,7 @@ public class ProductService : IProductService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<ProductResponse?> GetProductByIdAsync(int id)
+    public async Task<ProductResponseDto?> GetProductByIdAsync(int id)
     {
         if (id <= 0)
             throw new ArgumentException("El ID del producto no es válido.");
@@ -33,14 +33,14 @@ public class ProductService : IProductService
         return MapToResponse(product);
     }
 
-    public async Task<IEnumerable<ProductResponse>> GetAllProductsAsync()
+    public async Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync()
     {
         var products = await _productRepository.GetAllProductsAsync();
 
         return products.Select(MapToResponse);
     }
 
-    public async Task<ProductResponse?> GetByBarcodeAsync(string barcode)
+    public async Task<ProductResponseDto?> GetByBarcodeAsync(string barcode)
     {
         if (string.IsNullOrWhiteSpace(barcode))
             throw new ArgumentException("El código de barras es obligatorio.");
@@ -53,7 +53,7 @@ public class ProductService : IProductService
         return MapToResponse(product);
     }
 
-    public async Task AddProductAsync(ProductRequest productRequest)
+    public async Task AddProductAsync(ProductRequestDto productRequest)
     {
         if (productRequest == null)
             throw new ArgumentNullException(nameof(productRequest));
@@ -102,7 +102,7 @@ public class ProductService : IProductService
         await _productRepository.AddProductAsync(product);
     }
 
-    public async Task UpdateProductAsync(int id, ProductRequest productRequest)
+    public async Task UpdateProductAsync(int id, ProductRequestDto productRequest)
     {
         if (productRequest == null)
             throw new ArgumentNullException(nameof(productRequest));
@@ -172,9 +172,9 @@ public class ProductService : IProductService
         await _productRepository.DeleteProductAsync(id);
     }
 
-    private static ProductResponse MapToResponse(Product product)
+    private static ProductResponseDto MapToResponse(Product product)
     {
-        return new ProductResponse
+        return new ProductResponseDto
         {
             Id = product.Id,
             Barcode = product.Barcode,

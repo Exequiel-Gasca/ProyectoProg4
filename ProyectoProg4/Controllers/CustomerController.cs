@@ -46,7 +46,7 @@ public class CustomerController : ControllerBase
     // POST: api/Customer
     [HttpPost]
     public async Task<IActionResult> Create(
-        [FromBody] CustomerRequest customerRequest)
+        [FromBody] CustomerRequestDto customerRequest)
     {
         try
         {
@@ -64,7 +64,7 @@ public class CustomerController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(
         int id,
-        [FromBody] CustomerRequest customerRequest)
+        [FromBody] CustomerRequestDto customerRequest)
     {
         try
         {

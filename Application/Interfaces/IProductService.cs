@@ -6,15 +6,15 @@ namespace Application.Interfaces;
 
 public interface IProductService
 {
-    Task<ProductResponse?> GetProductByIdAsync(int id);
+    Task<ProductResponseDto?> GetProductByIdAsync(int id);
 
-    Task<IEnumerable<ProductResponse>> GetAllProductsAsync();
+    Task<IEnumerable<ProductResponseDto>> GetAllProductsAsync();
 
-    Task<ProductResponse?> GetByBarcodeAsync(string barcode);
+    Task<ProductResponseDto?> GetByBarcodeAsync(string barcode);
 
-    Task AddProductAsync(ProductRequest productRequest);
+    Task AddProductAsync(ProductRequestDto productRequest);
 
-    Task UpdateProductAsync(int id, ProductRequest productRequest);
+    Task UpdateProductAsync(int id, ProductRequestDto productRequest);
 
     Task DeleteProductAsync(int id);
 }

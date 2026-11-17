@@ -6,13 +6,13 @@ namespace Application.Interfaces;
 
 public interface ICustomerService
 {
-    Task<IEnumerable<CustomerResponse>> GetAllCustomerAsync();
+    Task<IEnumerable<CustomerResponseDto>> GetAllCustomerAsync();
 
-    Task<CustomerResponse?> GetCustomerByIdAsync(int id);
+    Task<CustomerResponseDto?> GetCustomerByIdAsync(int id);
 
-    Task AddCustomerAsync(CustomerRequest customerRequest);
+    Task AddCustomerAsync(CustomerRequestDto customerRequest);
 
-    Task UpdateCustomerAsync(int id, CustomerRequest customerRequest);
+    Task UpdateCustomerAsync(int id, CustomerRequestDto customerRequest);
 
     Task DeleteCustomerAsync(int id);
 }

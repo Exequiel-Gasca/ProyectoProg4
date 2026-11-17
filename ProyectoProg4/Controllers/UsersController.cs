@@ -20,7 +20,7 @@ public class UsersController : ControllerBase
 
     [Authorize(Roles = "Admin,SuperAdmin")]
     [HttpGet]
-    public async Task<ActionResult<List<UserDto>>> Get()
+    public async Task<ActionResult<List<UserResponseDto>>> Get()
     {
         var users = await _userService.GetAllUsersAsync();
         return Ok(users.Select(ToDto).ToList());
@@ -28,7 +28,7 @@ public class UsersController : ControllerBase
 
     [Authorize]
     [HttpGet("{id}")]
-    public async Task<ActionResult<UserDto>> GetById(int id)
+    public async Task<ActionResult<UserResponseDto>> GetById(int id)
     {
         if (!CanAccess(id))
             return Forbid();
@@ -43,7 +43,7 @@ public class UsersController : ControllerBase
 
     [AllowAnonymous]
     [HttpPost("register")]
-    public async Task<ActionResult<UserDto>> Register(RegisterUserDto dto)
+    public async Task<ActionResult<UserResponseDto>> Register(RegisterUserDto dto)
     {
         try
         {
@@ -159,7 +159,7 @@ public class UsersController : ControllerBase
         return int.TryParse(claim, out var currentId) && currentId == targetUserId;
     }
 
-    private static UserDto ToDto(User u) => new()
+    private static UserResponseDto ToDto(User u) => new()
     {
         Id = u.Id,
         FirstName = u.FirstName,

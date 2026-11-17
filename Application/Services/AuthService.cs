@@ -36,7 +36,7 @@ public class AuthService : IAuthService
         {
             Token = token.Token,
             ExpiresAt = token.ExpiresAt,
-            User = new UserDto
+            User = new UserResponseDto
             {
                 Id = user.Id,
                 FirstName = user.FirstName,

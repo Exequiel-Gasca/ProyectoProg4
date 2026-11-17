@@ -6,11 +6,11 @@ namespace Application.Interfaces;
 
 public interface ICategoryService
 {
-    Task<IEnumerable<CategoryResponse>> GetAllCategoriesAsync();
+    Task<IEnumerable<CategoryResponseDto>> GetAllCategoriesAsync();
 
-    Task<CategoryResponse?> GetCategoryByIdAsync(int id);
+    Task<CategoryResponseDto?> GetCategoryByIdAsync(int id);
 
-    Task AddCategoryAsync(CategoryRequest categoryRequest);
+    Task AddCategoryAsync(CategoryRequestDto categoryRequest);
 
-    Task UpdateCategoryAsync(int id, CategoryRequest categoryRequest);
+    Task UpdateCategoryAsync(int id, CategoryRequestDto categoryRequest);
 }
