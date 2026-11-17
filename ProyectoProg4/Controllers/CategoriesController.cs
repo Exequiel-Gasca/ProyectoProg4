@@ -1,6 +1,6 @@
 ﻿
+using Application.DTOs.Requests.Categories;
 using Application.Interfaces;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProyectoProg4.Controllers;
@@ -38,17 +38,14 @@ public class CategoriesController : ControllerBase
 
     // POST: api/Categories
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Category category)
+    public async Task<IActionResult> Create(
+        [FromBody] CategoryRequest categoryRequest)
     {
         try
         {
-            await _categoryService.AddCategoryAsync(category);
+            await _categoryService.AddCategoryAsync(categoryRequest);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = category.Id },
-                category
-            );
+            return Ok("Categoría creada correctamente.");
         }
         catch (ArgumentException ex)
         {
@@ -58,14 +55,13 @@ public class CategoriesController : ControllerBase
 
     // PUT: api/Categories/5
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Category category)
+    public async Task<IActionResult> Update(
+        int id,
+        [FromBody] CategoryRequest categoryRequest)
     {
-        if (id != category.Id)
-            return BadRequest("El ID de la ruta no coincide con el ID de la categoría.");
-
         try
         {
-            await _categoryService.UpdateCategoryAsync(category);
+            await _categoryService.UpdateCategoryAsync(id, categoryRequest);
             return NoContent();
         }
         catch (KeyNotFoundException ex)

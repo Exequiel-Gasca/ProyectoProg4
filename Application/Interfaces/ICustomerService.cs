@@ -1,12 +1,18 @@
-﻿using Domain.Entities;
+﻿
+using Application.DTOs.Requests.Customers;
+using Application.DTOs.Responses.Customers;
 
 namespace Application.Interfaces;
 
 public interface ICustomerService
 {
-    Task<IEnumerable<Customer>> GetAllCustomerAsync();
-    Task<Customer?> GetCustomerByIdAsync(int id);
-    Task AddCustomerAsync(Customer customer);
-    Task UpdateCustomerAsync(Customer customer);
+    Task<IEnumerable<CustomerResponse>> GetAllCustomerAsync();
+
+    Task<CustomerResponse?> GetCustomerByIdAsync(int id);
+
+    Task AddCustomerAsync(CustomerRequest customerRequest);
+
+    Task UpdateCustomerAsync(int id, CustomerRequest customerRequest);
+
     Task DeleteCustomerAsync(int id);
 }

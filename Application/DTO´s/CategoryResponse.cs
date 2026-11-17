@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
+namespace Application.DTOs.Responses.Categories;
 
-namespace Application.DTOs;
-
-public class CategoryDto
+public class CategoryResponse
 {
     public int Id { get; set; }
 

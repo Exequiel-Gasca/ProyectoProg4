@@ -1,4 +1,6 @@
 ﻿
+using Application.DTOs.Requests.Categories;
+using Application.DTOs.Responses.Categories;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -14,55 +16,76 @@ public class CategoryService : ICategoryService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
+    public async Task<IEnumerable<CategoryResponse>> GetAllCategoriesAsync()
     {
-        return await _categoryRepository.GetAllCategoriesAsync();
+        var categories = await _categoryRepository.GetAllCategoriesAsync();
+
+        return categories.Select(MapToResponse);
     }
 
-    public async Task<Category?> GetCategoryByIdAsync(int id)
+    public async Task<CategoryResponse?> GetCategoryByIdAsync(int id)
     {
         if (id <= 0)
             throw new ArgumentException("El ID de la categoría no es válido.");
 
-        return await _categoryRepository.GetCategoryByIdAsync(id);
+        var category = await _categoryRepository.GetCategoryByIdAsync(id);
+
+        if (category == null)
+            return null;
+
+        return MapToResponse(category);
     }
 
-    public async Task AddCategoryAsync(Category category)
+    public async Task AddCategoryAsync(CategoryRequest categoryRequest)
     {
-        if (category == null)
-            throw new ArgumentNullException(nameof(category));
+        if (categoryRequest == null)
+            throw new ArgumentNullException(nameof(categoryRequest));
 
-        if (string.IsNullOrWhiteSpace(category.Name))
+        if (string.IsNullOrWhiteSpace(categoryRequest.Name))
             throw new ArgumentException("El nombre de la categoría es obligatorio.");
 
-        category.Name = category.Name.Trim();
-        category.Description = category.Description?.Trim() ?? string.Empty;
-        category.IsActive = true;
+        var category = new Category
+        {
+            Name = categoryRequest.Name.Trim(),
+            Description = categoryRequest.Description?.Trim() ?? string.Empty,
+            IsActive = true
+        };
 
         await _categoryRepository.AddCategoryAsync(category);
     }
 
-    public async Task UpdateCategoryAsync(Category category)
+    public async Task UpdateCategoryAsync(int id, CategoryRequest categoryRequest)
     {
-        if (category == null)
-            throw new ArgumentNullException(nameof(category));
+        if (categoryRequest == null)
+            throw new ArgumentNullException(nameof(categoryRequest));
 
-        if (category.Id <= 0)
+        if (id <= 0)
             throw new ArgumentException("El ID de la categoría no es válido.");
 
-        if (string.IsNullOrWhiteSpace(category.Name))
+        if (string.IsNullOrWhiteSpace(categoryRequest.Name))
             throw new ArgumentException("El nombre de la categoría es obligatorio.");
 
         var existingCategory =
-            await _categoryRepository.GetCategoryByIdAsync(category.Id);
+            await _categoryRepository.GetCategoryByIdAsync(id);
 
         if (existingCategory == null)
             throw new KeyNotFoundException("No se encontró la categoría.");
 
-        existingCategory.Name = category.Name.Trim();
-        existingCategory.Description = category.Description?.Trim() ?? string.Empty;
-        existingCategory.IsActive = category.IsActive;
+        existingCategory.Name = categoryRequest.Name.Trim();
+        existingCategory.Description = categoryRequest.Description?.Trim() ?? string.Empty;
+        existingCategory.IsActive = categoryRequest.IsActive;
 
         await _categoryRepository.UpdateCategoryAsync(existingCategory);
+    }
+
+    private static CategoryResponse MapToResponse(Category category)
+    {
+        return new CategoryResponse
+        {
+            Id = category.Id,
+            Name = category.Name,
+            Description = category.Description,
+            IsActive = category.IsActive
+        };
     }
 }

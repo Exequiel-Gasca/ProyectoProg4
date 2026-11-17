@@ -1,4 +1,6 @@
 ﻿
+using Application.DTOs.Requests.Customers;
+using Application.DTOs.Responses.Customers;
 using Application.Interfaces;
 using Domain.Entities;
 using Domain.Interfaces;
@@ -14,73 +16,83 @@ public class CustomerService : ICustomerService
         _customerRepository = customerRepository;
     }
 
-    public async Task<IEnumerable<Customer>> GetAllCustomerAsync()
+    public async Task<IEnumerable<CustomerResponse>> GetAllCustomerAsync()
     {
-        return await _customerRepository.GetAllCustomerAsync();
+        var customers = await _customerRepository.GetAllCustomerAsync();
+
+        return customers.Select(MapToResponse);
     }
 
-    public async Task<Customer?> GetCustomerByIdAsync(int id)
+    public async Task<CustomerResponse?> GetCustomerByIdAsync(int id)
     {
         if (id <= 0)
             throw new ArgumentException("El ID del cliente no es válido.");
 
-        return await _customerRepository.GetCustomerByIdAsync(id);
+        var customer = await _customerRepository.GetCustomerByIdAsync(id);
+
+        if (customer == null)
+            return null;
+
+        return MapToResponse(customer);
     }
 
-    public async Task AddCustomerAsync(Customer customer)
+    public async Task AddCustomerAsync(CustomerRequest customerRequest)
     {
-        if (customer == null)
-            throw new ArgumentNullException(nameof(customer));
+        if (customerRequest == null)
+            throw new ArgumentNullException(nameof(customerRequest));
 
-        if (string.IsNullOrWhiteSpace(customer.FirstName))
+        if (string.IsNullOrWhiteSpace(customerRequest.FirstName))
             throw new ArgumentException("El nombre es obligatorio.");
 
-        if (string.IsNullOrWhiteSpace(customer.LastName))
+        if (string.IsNullOrWhiteSpace(customerRequest.LastName))
             throw new ArgumentException("El apellido es obligatorio.");
 
-        if (string.IsNullOrWhiteSpace(customer.Dni))
+        if (string.IsNullOrWhiteSpace(customerRequest.Dni))
             throw new ArgumentException("El DNI es obligatorio.");
 
-        customer.FirstName = customer.FirstName.Trim();
-        customer.LastName = customer.LastName.Trim();
-        customer.Dni = customer.Dni.Trim();
-        customer.Email = customer.Email?.Trim() ?? string.Empty;
-        customer.Phone = customer.Phone?.Trim() ?? string.Empty;
-        customer.Address = customer.Address?.Trim() ?? string.Empty;
-        customer.IsActive = true;
+        var customer = new Customer
+        {
+            FirstName = customerRequest.FirstName.Trim(),
+            LastName = customerRequest.LastName.Trim(),
+            Dni = customerRequest.Dni.Trim(),
+            Phone = customerRequest.Phone?.Trim() ?? string.Empty,
+            Email = customerRequest.Email?.Trim() ?? string.Empty,
+            Address = customerRequest.Address?.Trim() ?? string.Empty,
+            IsActive = true
+        };
 
         await _customerRepository.AddCustomerAsync(customer);
     }
 
-    public async Task UpdateCustomerAsync(Customer customer)
+    public async Task UpdateCustomerAsync(int id, CustomerRequest customerRequest)
     {
-        if (customer == null)
-            throw new ArgumentNullException(nameof(customer));
+        if (customerRequest == null)
+            throw new ArgumentNullException(nameof(customerRequest));
 
-        if (customer.Id <= 0)
+        if (id <= 0)
             throw new ArgumentException("El ID del cliente no es válido.");
 
-        var existingCustomer =
-            await _customerRepository.GetCustomerByIdAsync(customer.Id);
-
-        if (existingCustomer == null)
-            throw new KeyNotFoundException("No se encontró el cliente.");
-
-        if (string.IsNullOrWhiteSpace(customer.FirstName) ||
-            string.IsNullOrWhiteSpace(customer.LastName) ||
-            string.IsNullOrWhiteSpace(customer.Dni))
+        if (string.IsNullOrWhiteSpace(customerRequest.FirstName) ||
+            string.IsNullOrWhiteSpace(customerRequest.LastName) ||
+            string.IsNullOrWhiteSpace(customerRequest.Dni))
         {
             throw new ArgumentException(
                 "Nombre, apellido y DNI son obligatorios.");
         }
 
-        existingCustomer.FirstName = customer.FirstName.Trim();
-        existingCustomer.LastName = customer.LastName.Trim();
-        existingCustomer.Dni = customer.Dni.Trim();
-        existingCustomer.Phone = customer.Phone?.Trim() ?? string.Empty;
-        existingCustomer.Email = customer.Email?.Trim() ?? string.Empty;
-        existingCustomer.Address = customer.Address?.Trim() ?? string.Empty;
-        existingCustomer.IsActive = customer.IsActive;
+        var existingCustomer =
+            await _customerRepository.GetCustomerByIdAsync(id);
+
+        if (existingCustomer == null)
+            throw new KeyNotFoundException("No se encontró el cliente.");
+
+        existingCustomer.FirstName = customerRequest.FirstName.Trim();
+        existingCustomer.LastName = customerRequest.LastName.Trim();
+        existingCustomer.Dni = customerRequest.Dni.Trim();
+        existingCustomer.Phone = customerRequest.Phone?.Trim() ?? string.Empty;
+        existingCustomer.Email = customerRequest.Email?.Trim() ?? string.Empty;
+        existingCustomer.Address = customerRequest.Address?.Trim() ?? string.Empty;
+        existingCustomer.IsActive = customerRequest.IsActive;
 
         await _customerRepository.UpdateCustomerAsync(existingCustomer);
     }
@@ -96,5 +108,20 @@ public class CustomerService : ICustomerService
             throw new KeyNotFoundException("No se encontró el cliente.");
 
         await _customerRepository.DeleteCustomerAsync(id);
+    }
+
+    private static CustomerResponse MapToResponse(Customer customer)
+    {
+        return new CustomerResponse
+        {
+            Id = customer.Id,
+            FirstName = customer.FirstName,
+            LastName = customer.LastName,
+            Dni = customer.Dni,
+            Phone = customer.Phone,
+            Email = customer.Email,
+            Address = customer.Address,
+            IsActive = customer.IsActive
+        };
     }
 }

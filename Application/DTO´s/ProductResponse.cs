@@ -1,4 +1,6 @@
-﻿namespace Application.DTOs.Responses.Products;
+﻿using Domain.Enums;
+
+namespace Application.DTOs.Responses.Products;
 
 public class ProductResponse
 {
@@ -16,7 +18,7 @@ public class ProductResponse
 
     public float CurrentStock { get; set; }
 
-    public int MeasurementUnit { get; set; }
+    public MeasurementUnit MeasurementUnit { get; set; }
 
     public float MinimumStock { get; set; }
 

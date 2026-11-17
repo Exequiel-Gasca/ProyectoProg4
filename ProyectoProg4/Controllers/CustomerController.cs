@@ -1,6 +1,6 @@
 ﻿
+using Application.DTOs.Requests.Customers;
 using Application.Interfaces;
-using Domain.Entities;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProyectoProg4.Controllers;
@@ -45,17 +45,14 @@ public class CustomerController : ControllerBase
 
     // POST: api/Customer
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] Customer customer)
+    public async Task<IActionResult> Create(
+        [FromBody] CustomerRequest customerRequest)
     {
         try
         {
-            await _customerService.AddCustomerAsync(customer);
+            await _customerService.AddCustomerAsync(customerRequest);
 
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = customer.Id },
-                customer
-            );
+            return Ok("Cliente creado correctamente.");
         }
         catch (ArgumentException ex)
         {
@@ -65,14 +62,13 @@ public class CustomerController : ControllerBase
 
     // PUT: api/Customer/5
     [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] Customer customer)
+    public async Task<IActionResult> Update(
+        int id,
+        [FromBody] CustomerRequest customerRequest)
     {
-        if (id != customer.Id)
-            return BadRequest("El ID de la ruta no coincide con el ID del cliente.");
-
         try
         {
-            await _customerService.UpdateCustomerAsync(customer);
+            await _customerService.UpdateCustomerAsync(id, customerRequest);
             return NoContent();
         }
         catch (KeyNotFoundException ex)

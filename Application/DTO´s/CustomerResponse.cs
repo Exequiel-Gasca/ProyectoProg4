@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿
+namespace Application.DTOs.Responses.Customers;
 
-namespace Application.DTOs;
-
-public class CustomerDto
+public class CustomerResponse
 {
     public int Id { get; set; }
 
