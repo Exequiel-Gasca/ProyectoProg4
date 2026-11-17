@@ -54,7 +54,7 @@ public class MercadoPagoController : ControllerBase
                     var payment = new Payment
                     {
                         SaleId = sale.Id,
-                        Sale = sale,
+                        Sale = null!,
                         Amount = amount,
                         Status = PaymentStatus.Pending,
                         PaymentMethod = PaymentMethod.MercadoPagoQr,

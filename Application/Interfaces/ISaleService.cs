@@ -1,16 +1,19 @@
-﻿using Domain.Entities;
+﻿using Application.DTOs.request;
+using Application.DTOs.Responses.Sales;
 
 namespace Application.Interfaces;
 
 public interface ISaleService
 {
-    Task<Sale?> GetSaleByIdAsync(int id);
-    Task<IEnumerable<Sale>> GetAllSalesAsync();
+    Task<SaleResponseDto?> GetSaleByIdAsync(int id);
 
-    Task<IEnumerable<Sale>> GetSalesByDateRangeAsync(
+    Task<IEnumerable<SaleResponseDto>> GetAllSalesAsync();
+
+    Task<IEnumerable<SaleResponseDto>> GetSalesByDateRangeAsync(
         DateTime startDate,
         DateTime endDate);
 
-    Task<Sale> CreateSaleAsync(Sale sale);
+    Task<SaleResponseDto> CreateSaleAsync(SaleRequestDto saleRequest);
+
     Task CancelSaleAsync(int id);
 }
