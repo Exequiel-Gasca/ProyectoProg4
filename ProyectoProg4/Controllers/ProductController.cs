@@ -18,7 +18,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProductResponse>>> GetAll()
+    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetAll()
     {
         var products = await _productService.GetAllProductsAsync();
 
@@ -26,7 +26,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ProductResponse>> GetById(int id)
+    public async Task<ActionResult<ProductResponseDto>> GetById(int id)
     {
         var product = await _productService.GetProductByIdAsync(id);
 
@@ -37,7 +37,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpGet("barcode/{barcode}")]
-    public async Task<ActionResult<ProductResponse>> GetByBarcode(string barcode)
+    public async Task<ActionResult<ProductResponseDto>> GetByBarcode(string barcode)
     {
         var product = await _productService.GetByBarcodeAsync(barcode);
 
@@ -48,7 +48,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create(ProductRequest productRequest)
+    public async Task<IActionResult> Create(ProductRequestDto productRequest)
     {
         await _productService.AddProductAsync(productRequest);
 
@@ -56,7 +56,7 @@ public class ProductController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, ProductRequest productRequest)
+    public async Task<IActionResult> Update(int id, ProductRequestDto productRequest)
     {
         await _productService.UpdateProductAsync(id, productRequest);
 

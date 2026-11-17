@@ -16,14 +16,14 @@ public class CategoryService : ICategoryService
         _categoryRepository = categoryRepository;
     }
 
-    public async Task<IEnumerable<CategoryResponse>> GetAllCategoriesAsync()
+    public async Task<IEnumerable<CategoryResponseDto>> GetAllCategoriesAsync()
     {
         var categories = await _categoryRepository.GetAllCategoriesAsync();
 
         return categories.Select(MapToResponse);
     }
 
-    public async Task<CategoryResponse?> GetCategoryByIdAsync(int id)
+    public async Task<CategoryResponseDto?> GetCategoryByIdAsync(int id)
     {
         if (id <= 0)
             throw new ArgumentException("El ID de la categoría no es válido.");
@@ -36,7 +36,7 @@ public class CategoryService : ICategoryService
         return MapToResponse(category);
     }
 
-    public async Task AddCategoryAsync(CategoryRequest categoryRequest)
+    public async Task AddCategoryAsync(CategoryRequestDto categoryRequest)
     {
         if (categoryRequest == null)
             throw new ArgumentNullException(nameof(categoryRequest));
@@ -54,7 +54,7 @@ public class CategoryService : ICategoryService
         await _categoryRepository.AddCategoryAsync(category);
     }
 
-    public async Task UpdateCategoryAsync(int id, CategoryRequest categoryRequest)
+    public async Task UpdateCategoryAsync(int id, CategoryRequestDto categoryRequest)
     {
         if (categoryRequest == null)
             throw new ArgumentNullException(nameof(categoryRequest));
@@ -78,9 +78,9 @@ public class CategoryService : ICategoryService
         await _categoryRepository.UpdateCategoryAsync(existingCategory);
     }
 
-    private static CategoryResponse MapToResponse(Category category)
+    private static CategoryResponseDto MapToResponse(Category category)
     {
-        return new CategoryResponse
+        return new CategoryResponseDto
         {
             Id = category.Id,
             Name = category.Name,

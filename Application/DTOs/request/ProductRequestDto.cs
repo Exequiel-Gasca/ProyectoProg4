@@ -1,11 +1,9 @@
 ﻿using Domain.Enums;
 
-namespace Application.DTOs.Responses.Products;
+namespace Application.DTOs.Requests.Products;
 
-public class ProductResponse
+public class ProductRequestDto
 {
-    public int Id { get; set; }
-
     public string Barcode { get; set; } = string.Empty;
 
     public string Name { get; set; } = string.Empty;

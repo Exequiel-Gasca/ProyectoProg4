@@ -39,7 +39,7 @@ public class CategoriesController : ControllerBase
     // POST: api/Categories
     [HttpPost]
     public async Task<IActionResult> Create(
-        [FromBody] CategoryRequest categoryRequest)
+        [FromBody] CategoryRequestDto categoryRequest)
     {
         try
         {
@@ -57,7 +57,7 @@ public class CategoriesController : ControllerBase
     [HttpPut("{id:int}")]
     public async Task<IActionResult> Update(
         int id,
-        [FromBody] CategoryRequest categoryRequest)
+        [FromBody] CategoryRequestDto categoryRequest)
     {
         try
         {

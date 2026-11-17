@@ -1,7 +1,7 @@
 ﻿
 namespace Application.DTOs.Requests.Customers;
 
-public class CustomerRequest
+public class CustomerRequestDto
 {
     public string FirstName { get; set; } = string.Empty;
 

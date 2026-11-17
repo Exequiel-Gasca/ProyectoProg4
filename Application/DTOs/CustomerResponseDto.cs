@@ -1,7 +1,7 @@
 ﻿
 namespace Application.DTOs.Responses.Customers;
 
-public class CustomerResponse
+public class CustomerResponseDto
 {
     public int Id { get; set; }
 

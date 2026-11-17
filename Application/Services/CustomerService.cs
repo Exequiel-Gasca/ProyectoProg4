@@ -16,14 +16,14 @@ public class CustomerService : ICustomerService
         _customerRepository = customerRepository;
     }
 
-    public async Task<IEnumerable<CustomerResponse>> GetAllCustomerAsync()
+    public async Task<IEnumerable<CustomerResponseDto>> GetAllCustomerAsync()
     {
         var customers = await _customerRepository.GetAllCustomerAsync();
 
         return customers.Select(MapToResponse);
     }
 
-    public async Task<CustomerResponse?> GetCustomerByIdAsync(int id)
+    public async Task<CustomerResponseDto?> GetCustomerByIdAsync(int id)
     {
         if (id <= 0)
             throw new ArgumentException("El ID del cliente no es válido.");
@@ -36,7 +36,7 @@ public class CustomerService : ICustomerService
         return MapToResponse(customer);
     }
 
-    public async Task AddCustomerAsync(CustomerRequest customerRequest)
+    public async Task AddCustomerAsync(CustomerRequestDto customerRequest)
     {
         if (customerRequest == null)
             throw new ArgumentNullException(nameof(customerRequest));
@@ -64,7 +64,7 @@ public class CustomerService : ICustomerService
         await _customerRepository.AddCustomerAsync(customer);
     }
 
-    public async Task UpdateCustomerAsync(int id, CustomerRequest customerRequest)
+    public async Task UpdateCustomerAsync(int id, CustomerRequestDto customerRequest)
     {
         if (customerRequest == null)
             throw new ArgumentNullException(nameof(customerRequest));
@@ -110,9 +110,9 @@ public class CustomerService : ICustomerService
         await _customerRepository.DeleteCustomerAsync(id);
     }
 
-    private static CustomerResponse MapToResponse(Customer customer)
+    private static CustomerResponseDto MapToResponse(Customer customer)
     {
-        return new CustomerResponse
+        return new CustomerResponseDto
         {
             Id = customer.Id,
             FirstName = customer.FirstName,
