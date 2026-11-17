@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Application.DTOs;
 using Domain.Enums;
 
-namespace Application.DTOs;
+namespace Application.DTOs.Responses.Sales;
 
-public class SaleDto
+public class SaleResponseDto
 {
     public int Id { get; set; }
 
@@ -19,7 +17,7 @@ public class SaleDto
 
     public int? IdCustomer { get; set; }
 
-    public List<SaleDetailDto> Details { get; set; } = new();
+    public List<SaleDetailResponseDto> Details { get; set; } = new();
 
-    public PaymentDto? Payment { get; set; }
+    public List<PaymentDto> Payments { get; set; } = new();
 }

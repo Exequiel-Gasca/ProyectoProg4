@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿namespace Application.DTOs.Responses.Sales;
 
-namespace Application.DTOs;
-
-public class SaleDetailDto
+public class SaleDetailResponseDto
 {
     public int Id { get; set; }
 
