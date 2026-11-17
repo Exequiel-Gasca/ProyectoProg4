@@ -1,5 +1,5 @@
 ﻿using Application.DTOs;
-using Domain.Entities;
+using Domain.Enums;
 
 namespace Application.Interfaces;
 
@@ -7,8 +7,12 @@ public interface IStockMovementService
 {
     Task<StockMovementDto?> GetStockMovementByIdAsync(int id);
     Task<IEnumerable<StockMovementDto>> GetAllStockMovementsAsync();
-    Task<StockMovementDto> AddStockMovementAsync(StockMovement stockMovement);
-    Task<StockMovementDto> UpdateStockMovementAsync(int id,StockMovement stockMovement);
-    Task DeleteStockMovementAsync(int id);
-    Task UpdateStock(StockMovement stockMovement);
+
+    Task RegisterMovementAsync(
+        int productId,
+        float quantity,
+        StockMovementType type,
+        string reason,
+        int userId,
+        bool allowNegativeStock = false);
 }

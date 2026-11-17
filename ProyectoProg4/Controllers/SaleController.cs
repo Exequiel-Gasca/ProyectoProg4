@@ -1,13 +1,15 @@
 ﻿
+using System.Security.Claims;
 using Application.DTOs.request;
-using Application.DTOs.Responses.Sales;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ProyectoProg4.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Admin,SuperAdmin")]
 public class SaleController : ControllerBase
 {
     private readonly ISaleService _saleService;
@@ -17,68 +19,63 @@ public class SaleController : ControllerBase
         _saleService = saleService;
     }
 
-    // GET: api/Sale
+    private int CurrentUserId => int.Parse(User.FindFirstValue("sub")!);
+    private bool IsAdmin => User.IsInRole("Admin") || User.IsInRole("SuperAdmin");
+
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SaleResponseDto>>> Get()
-    {
-        var sales = await _saleService.GetAllSalesAsync();
+    public async Task<IActionResult> GetAll()
+        => Ok(await _saleService.GetAllSalesAsync());
 
-        return Ok(sales);
-    }
-
-    // GET: api/Sale/5
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id)
     {
         var sale = await _saleService.GetSaleByIdAsync(id);
-
-        if (sale == null)
-            return NotFound();
-
-        return Ok(sale);
+        return sale == null ? NotFound() : Ok(sale);
     }
 
-    // POST: api/Sale
+    [HttpGet("by-date")]
+    public async Task<IActionResult> GetByDate([FromQuery] DateTime from, [FromQuery] DateTime to)
+    {
+        try { return Ok(await _saleService.GetSalesByDateRangeAsync(from, to)); }
+        catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
     [HttpPost]
-    public async Task<IActionResult> Create(
-        [FromBody] SaleRequestDto saleRequest)
+    public async Task<IActionResult> Create([FromBody] SaleRequestDto request)
     {
         try
         {
-            var sale = await _saleService.CreateSaleAsync(saleRequest);
-
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = sale.Id },
-                sale);
+            var sale = await _saleService.CreateSaleAsync(request, CurrentUserId);
+            return CreatedAtAction(nameof(GetById), new { id = sale.Id }, sale);
         }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (ArgumentException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+        catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
     }
 
-    // DELETE: api/Sale/5
+    // Confirma la venta: valida y descuenta stock
+    [HttpPost("{id:int}/confirm")]
+    public async Task<IActionResult> Confirm(int id)
+    {
+        try
+        {
+            var sale = await _saleService.ConfirmSaleAsync(id, CurrentUserId);
+            return Ok(sale);
+        }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex) { return Conflict(new { message = ex.Message }); }
+        catch (ArgumentException ex) { return BadRequest(new { message = ex.Message }); }
+    }
+
     [HttpDelete("{id:int}")]
+    [Authorize(Roles = "Admin,SuperAdmin")]
     public async Task<IActionResult> Cancel(int id)
     {
         try
         {
-            await _saleService.CancelSaleAsync(id);
-
+            await _saleService.CancelSaleAsync(id, CurrentUserId);
             return NoContent();
         }
-        catch (KeyNotFoundException ex)
-        {
-            return NotFound(ex.Message);
-        }
-        catch (InvalidOperationException ex)
-        {
-            return BadRequest(ex.Message);
-        }
+        catch (KeyNotFoundException ex) { return NotFound(new { message = ex.Message }); }
+        catch (InvalidOperationException ex) { return Conflict(new { message = ex.Message }); }
     }
 }

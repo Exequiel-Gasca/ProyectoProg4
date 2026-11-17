@@ -82,6 +82,10 @@ builder.Services.AddScoped<IUserService, UserService>();
 // Roles
 builder.Services.AddScoped<IUserRoleService, UserRoleService>();
 
+// Sotck Movement
+
+builder.Services.AddScoped<IStockMovementService, StockMovementServices>();
+
 // CONFIGURACION DE AUTORIZACION
 
 builder.Services.AddScoped<ITokenService, JwtTokenService>();

@@ -14,15 +14,18 @@ public class SaleService : ISaleService
     private readonly ISaleRepository _saleRepository;
     private readonly IProductRepository _productRepository;
     private readonly IUserRepository _userRepository;
+    private readonly IStockMovementService _stockMovementService;
 
     public SaleService(
         ISaleRepository saleRepository,
         IProductRepository productRepository,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        IStockMovementService stockMovementService)
     {
         _saleRepository = saleRepository;
         _productRepository = productRepository;
         _userRepository = userRepository;
+        _stockMovementService = stockMovementService;
     }
 
     public async Task<SaleResponseDto?> GetSaleByIdAsync(int id)
@@ -57,7 +60,7 @@ public class SaleService : ISaleService
     }
 
     public async Task<SaleResponseDto> CreateSaleAsync(
-        SaleRequestDto saleRequest)
+        SaleRequestDto saleRequest, int userId)
     {
         if (saleRequest == null)
             throw new ArgumentNullException(nameof(saleRequest));
@@ -66,12 +69,11 @@ public class SaleService : ISaleService
             throw new ArgumentException(
                 "La venta debe contener al menos un producto.");
 
-        var user = await _userRepository.GetUserByIdAsync(
-            saleRequest.IdUser);
+        var user = await _userRepository.GetUserByIdAsync(userId);
 
         if (user == null)
             throw new KeyNotFoundException(
-                $"No se encontró el usuario con ID {saleRequest.IdUser}.");
+                $"No se encontró el usuario con ID {userId}.");
 
         var sale = new Sale
         {
@@ -119,20 +121,62 @@ public class SaleService : ISaleService
         return MapToResponse(sale);
     }
 
-    public async Task CancelSaleAsync(int id)
+    public async Task<SaleResponseDto> ConfirmSaleAsync(int saleId, int userId)
     {
-        var sale = await _saleRepository.GetSaleByIdAsync(id);
-
-        if (sale == null)
-            throw new KeyNotFoundException(
-                $"No se encontró la venta con ID {id}.");
+        var sale = await _saleRepository.GetSaleByIdAsync(saleId)
+            ?? throw new KeyNotFoundException($"No se encontró la venta con ID {saleId}.");
 
         if (sale.Status != SaleStatus.Pending)
-            throw new InvalidOperationException(
-                "Solo se pueden cancelar ventas pendientes.");
+            throw new InvalidOperationException("Solo se pueden confirmar ventas pendientes.");
+
+        // Validar TODO el stock antes de descontar nada
+        foreach (var detail in sale.Detail)
+        {
+            var product = await _productRepository.GetProductByIdAsync(detail.ProductId);
+            if (product == null || product.CurrentStock < detail.Quantity)
+                throw new InvalidOperationException(
+                    $"Stock insuficiente para '{product?.Name}'. Disponible: {product?.CurrentStock}, solicitado: {detail.Quantity}.");
+        }
+
+        foreach (var detail in sale.Detail)
+        {
+            await _stockMovementService.RegisterMovementAsync(
+                detail.ProductId,
+                detail.Quantity,
+                StockMovementType.Exit,
+                $"Venta #{sale.Id}",
+                userId);
+        }
+
+        sale.Status = SaleStatus.Approved;
+        await _saleRepository.UpdateSaleAsync(sale);
+
+        return MapToResponse(sale);
+    }
+
+    public async Task CancelSaleAsync(int saleId, int userId)
+    {
+        var sale = await _saleRepository.GetSaleByIdAsync(saleId)
+            ?? throw new KeyNotFoundException($"No se encontró la venta con ID {saleId}.");
+
+        if (sale.Status == SaleStatus.Cancelled)
+            throw new InvalidOperationException("La venta ya está cancelada.");
+
+       
+        if (sale.Status == SaleStatus.Approved)
+        {
+            foreach (var detail in sale.Detail)
+            {
+                await _stockMovementService.RegisterMovementAsync(
+                    detail.ProductId,
+                    detail.Quantity,
+                    StockMovementType.Entry,
+                    $"Anulación de venta #{sale.Id}",
+                    userId);
+            }
+        }
 
         sale.Status = SaleStatus.Cancelled;
-
         await _saleRepository.UpdateSaleAsync(sale);
     }
 
