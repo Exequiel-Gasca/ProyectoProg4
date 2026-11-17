@@ -166,4 +166,97 @@ public class MercadoPagoController : ControllerBase
 
         return Ok();
     }
+    // ==================== SUCURSALES ====================
+
+    // GET: api/MercadoPago/sucursales
+    [Authorize]
+    [HttpGet("sucursales")]
+    public async Task<IActionResult> GetAllSucursales()
+    {
+        var sucursales = await _mercadoPagoService.GetAllSucursalesAsync();
+        return Ok(sucursales);
+    }
+
+    // GET: api/MercadoPago/sucursales/{id}
+    [Authorize]
+    [HttpGet("sucursales/{id:long}")]
+    public async Task<IActionResult> GetSucursalById(long id)
+    {
+        var sucursal = await _mercadoPagoService.GetSucursalesByIdAsync(id);
+        if (sucursal == null)
+            return NotFound(new { error = $"No se encontró la sucursal con ID {id}." });
+
+        return Ok(sucursal);
+    }
+
+    // POST: api/MercadoPago/sucursales
+    [Authorize]
+    [HttpPost("sucursales")]
+    public async Task<IActionResult> CreateSucursal([FromBody] SucursalRequest request)
+    {
+        var sucursal = await _mercadoPagoService.CreateSucursalesAsync(request);
+        if (sucursal == null)
+            return BadRequest(new { error = "No se pudo crear la sucursal en Mercado Pago." });
+
+        return CreatedAtAction(nameof(GetSucursalById), new { id = sucursal.Id }, sucursal);
+    }
+
+    // PUT: api/MercadoPago/sucursales/{id}
+    [Authorize]
+    [HttpPut("sucursales/{id:long}")]
+    public async Task<IActionResult> UpdateSucursal(long id, [FromBody] SucursalRequest request)
+    {
+        var sucursal = await _mercadoPagoService.UpdateSucursalesAsync(id, request);
+        if (sucursal == null)
+            return NotFound(new { error = $"No se pudo actualizar la sucursal con ID {id}." });
+
+        return Ok(sucursal);
+    }
+
+    // ==================== CAJAS ====================
+
+    // GET: api/MercadoPago/cajas
+    [Authorize]
+    [HttpGet("cajas")]
+    public async Task<IActionResult> GetAllCajas()
+    {
+        var cajas = await _mercadoPagoService.GetAllCajasAsync();
+        return Ok(cajas);
+    }
+
+    // GET: api/MercadoPago/cajas/{id}
+    [Authorize]
+    [HttpGet("cajas/{id:long}")]
+    public async Task<IActionResult> GetCajaById(long id)
+    {
+        var caja = await _mercadoPagoService.GetCajasByIdAsync(id);
+        if (caja == null)
+            return NotFound(new { error = $"No se encontró la caja con ID {id}." });
+
+        return Ok(caja);
+    }
+
+    // POST: api/MercadoPago/cajas
+    [Authorize]
+    [HttpPost("cajas")]
+    public async Task<IActionResult> CreateCaja([FromBody] CajaRequest request)
+    {
+        var caja = await _mercadoPagoService.CreateCajasAsync(request);
+        if (caja == null)
+            return BadRequest(new { error = "No se pudo crear la caja en Mercado Pago." });
+
+        return CreatedAtAction(nameof(GetCajaById), new { id = caja.Id }, caja);
+    }
+
+    // PUT: api/MercadoPago/cajas/{id}
+    [Authorize]
+    [HttpPut("cajas/{id:long}")]
+    public async Task<IActionResult> UpdateCaja(long id, [FromBody] CajaRequest request)
+    {
+        var caja = await _mercadoPagoService.UpdateCajasAsync(id, request);
+        if (caja == null)
+            return NotFound(new { error = $"No se pudo actualizar la caja con ID {id}." });
+
+        return Ok(caja);
+    }
 }
