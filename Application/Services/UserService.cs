@@ -54,17 +54,18 @@ public class UserService : IUserService
 
         await _userRepository.AddUserAsync(user);
 
-        // Recargo para que venga con el Role incluido
         return await _userRepository.GetUserByIdAsync(user.Id) ?? user;
     }
 
-    public async Task UpdateUserAsync(User user)
+    public async Task UpdateUserAsync(User user, int actingUserId)
     {
         var existing = await _userRepository.GetUserByIdAsync(user.Id);
 
         if (existing == null)
             throw new KeyNotFoundException(
                 $"No se encontró el usuario con ID {user.Id}.");
+
+        await EnsureCanManageAsync(actingUserId, existing);
 
         if (string.IsNullOrWhiteSpace(user.FirstName) ||
             string.IsNullOrWhiteSpace(user.LastName))
@@ -85,13 +86,18 @@ public class UserService : IUserService
         await _userRepository.UpdateUserAsync(existing);
     }
 
-    public async Task DeactivateUserAsync(int id)
+    public async Task DeactivateUserAsync(int id, int actingUserId)
     {
         var user = await _userRepository.GetUserByIdAsync(id);
 
         if (user == null)
             throw new KeyNotFoundException(
                 $"No se encontró el usuario con ID {id}.");
+
+        if (actingUserId == id)
+            throw new InvalidOperationException("No podés desactivar tu propia cuenta.");
+
+        await EnsureCanManageAsync(actingUserId, user);
 
         if (!user.IsActive)
             throw new InvalidOperationException("El usuario ya está inactivo.");
@@ -101,6 +107,24 @@ public class UserService : IUserService
         await _userRepository.UpdateUserAsync(user);
     }
 
+    // SuperAdmin: a cualquiera. Admin: a Common y a sí mismo. Common: solo a sí mismo.
+    private async Task EnsureCanManageAsync(int actingUserId, User target)
+    {
+        var acting = await _userRepository.GetUserByIdAsync(actingUserId)
+            ?? throw new KeyNotFoundException("Usuario que realiza la acción no encontrado.");
+
+        if (acting.RoleId == (int)RoleType.SuperAdmin)
+            return;
+
+        if (acting.Id == target.Id)
+            return;
+
+        if (acting.RoleId == (int)RoleType.Admin && target.RoleId != (int)RoleType.SuperAdmin)
+            return;
+
+        throw new UnauthorizedAccessException(
+            "No tenés permisos para modificar a este usuario.");
+    }
     public async Task UpdateUserRoleAsync(int targetUserId, int newRoleId, int actingUserId)
     {
         if (actingUserId == targetUserId)

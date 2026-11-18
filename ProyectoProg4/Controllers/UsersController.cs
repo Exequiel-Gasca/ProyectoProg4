@@ -75,6 +75,9 @@ public class UsersController : ControllerBase
         if (!CanAccess(id))
             return Forbid();
 
+        if (!int.TryParse(User.FindFirstValue("sub"), out var actingUserId))
+            return Unauthorized();
+
         try
         {
             var user = new User
@@ -85,7 +88,7 @@ public class UsersController : ControllerBase
                 Email = dto.Email
             };
 
-            await _userService.UpdateUserAsync(user);
+            await _userService.UpdateUserAsync(user, actingUserId);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
@@ -96,12 +99,15 @@ public class UsersController : ControllerBase
         {
             return BadRequest(new { error = ex.Message });
         }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
+        }
         catch (InvalidOperationException ex)
         {
             return Conflict(new { error = ex.Message });
         }
     }
-
     [Authorize(Roles = "SuperAdmin")]
     [HttpPut("{id}/role")]
     public async Task<IActionResult> ChangeRole(int id, ChangeRoleDto dto)
@@ -134,14 +140,21 @@ public class UsersController : ControllerBase
     [HttpDelete("{id}")]
     public async Task<IActionResult> Deactivate(int id)
     {
+        if (!int.TryParse(User.FindFirstValue("sub"), out var actingUserId))
+            return Unauthorized();
+
         try
         {
-            await _userService.DeactivateUserAsync(id);
+            await _userService.DeactivateUserAsync(id, actingUserId);
             return NoContent();
         }
         catch (KeyNotFoundException ex)
         {
             return NotFound(new { error = ex.Message });
+        }
+        catch (UnauthorizedAccessException ex)
+        {
+            return StatusCode(StatusCodes.Status403Forbidden, new { error = ex.Message });
         }
         catch (InvalidOperationException ex)
         {

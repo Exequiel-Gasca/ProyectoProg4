@@ -27,44 +27,63 @@ public class MercadoPagoController : ControllerBase
     }
 
     // POST: api/MercadoPago/orders
-    [Authorize]
-    [HttpPost("orders")]
-    public async Task<IActionResult> CreateOrder([FromBody] OrderRequest request)
+    // POST: api/MercadoPago/sales/{saleId}/order
+    // Crea la orden de cobro de una venta pendiente. La caja se pasa por posId,
+    // o se usa la única que exista en Mercado Pago.
+    [Authorize(Roles = "Admin,SuperAdmin")]
+    [HttpPost("sales/{saleId:int}/order")]
+    public async Task<IActionResult> CreateOrderForSale(int saleId, [FromQuery] string? posId = null)
     {
         try
         {
+            var sale = await _saleService.GetSaleByIdAsync(saleId);
+            if (sale == null)
+                return NotFound(new { error = $"No se encontró la venta con ID {saleId}." });
+
+            if (sale.Status != SaleStatus.Pending)
+                return Conflict(new { error = "Solo se puede cobrar una venta pendiente." });
+
+            if (string.IsNullOrWhiteSpace(posId))
+            {
+                var cajas = await _mercadoPagoService.GetAllCajasAsync();
+
+                if (cajas.Count == 0)
+                    return BadRequest(new { error = "No hay cajas creadas en Mercado Pago." });
+
+                if (cajas.Count > 1)
+                    return BadRequest(new
+                    {
+                        error = "Hay más de una caja: indicá cuál con ?posId=.",
+                        cajas = cajas.Select(c => new { c.Name, c.ExternalId })
+                    });
+
+                posId = cajas[0].ExternalId;
+            }
+
+            var total = sale.Total.ToString("F2", CultureInfo.InvariantCulture);
+
+            var request = new OrderRequest
+            {
+                Type = "qr",
+                TotalAmount = total,
+                Description = $"Venta #{sale.Id}",
+                ExternalReference = sale.Id.ToString(),
+                Config = new OrderConfig
+                {
+                    Qr = new OrderQrConfig { ExternalPosId = posId, Mode = "dynamic" }
+                },
+                Transactions = new OrderTransactionsRequest
+                {
+                    Payments = new List<OrderPaymentRequest>
+                    {
+                        new() { Amount = total }
+                    }
+                }
+            };
+
             var order = await _mercadoPagoService.CreateOrderAsync(request);
             if (order == null)
                 return BadRequest(new { error = "No se pudo crear la orden en Mercado Pago." });
-
-            // Si external_reference coincide con el ID de una venta existente, registramos el pago pendiente
-            if (int.TryParse(order.ExternalReference, out int saleId))
-            {
-                var sale = await _saleService.GetSaleByIdAsync(saleId);
-                if (sale != null)
-                {
-                    var amount = decimal.TryParse(
-                        order.TotalAmount,
-                        NumberStyles.Any,
-                        CultureInfo.InvariantCulture,
-                        out var parsedAmount)
-                        ? parsedAmount
-                        : sale.Total;
-
-                    var payment = new Payment
-                    {
-                        SaleId = sale.Id,
-                        Sale = null!,
-                        Amount = amount,
-                        Status = PaymentStatus.Pending,
-                        PaymentMethod = PaymentMethod.MercadoPagoQr,
-                        ExternalOrderId = order.Id,
-                        ExternalPaymentId = order.Transactions?.Payments?.FirstOrDefault()?.Id
-                    };
-
-                    await _paymentService.AddPaymentAsync(payment);
-                }
-            }
 
             return Ok(order);
         }
@@ -73,7 +92,6 @@ public class MercadoPagoController : ControllerBase
             return BadRequest(new { error = ex.Message });
         }
     }
-
     // GET: api/MercadoPago/orders/{orderId}
     [Authorize]
     [HttpGet("orders/{orderId}")]
