@@ -142,22 +142,32 @@ public class MercadoPagoController : ControllerBase
     }
 
     // POST: api/MercadoPago/webhook
+
     [AllowAnonymous]
     [HttpPost("webhook")]
     public async Task<IActionResult> ReceiveWebhook(
-        [FromQuery(Name = "data.id")] string? dataId,
-        [FromQuery(Name = "type")] string? type,
-        [FromBody] WebhookNotificationDto? notification)
+    [FromQuery(Name = "data.id")] string? dataId,
+    [FromQuery(Name = "type")] string? type,
+    [FromBody] WebhookNotificationDto? notification)
     {
         var xSignature = Request.Headers["x-signature"].ToString();
         var xRequestId = Request.Headers["x-request-id"].ToString();
 
         var effectiveDataId = !string.IsNullOrWhiteSpace(dataId)
             ? dataId
-            : notification?.Data?.Id ?? string.Empty;
+            : notification?.Data?.Id;
 
-        if (!_mercadoPagoService.ValidateWebhookSignature(xSignature, xRequestId, effectiveDataId))
+        if (string.IsNullOrWhiteSpace(effectiveDataId))
+            return BadRequest("Falta el parámetro data.id.");
+
+        // Pasamos effectiveDataId tal cual (sin ToLowerInvariant) para que el servicio pruebe minúsculas y original
+        if (!_mercadoPagoService.ValidateWebhookSignature(
+            xSignature,
+            xRequestId,
+            effectiveDataId))
+        {
             return Unauthorized();
+        }
 
         if (notification != null)
         {
