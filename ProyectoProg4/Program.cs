@@ -27,15 +27,8 @@ bool useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
 string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    if (useInMemory)
-        options.UseInMemoryDatabase("Practica1Db");
-    else
-        options.UseSqlServer(connectionString
-            ?? throw new InvalidOperationException(
-                "No se encontró la cadena de conexión DefaultConnection."));
-});
-
+options.UseSqlServer(connectionString,
+sql => sql.EnableRetryOnFailure()));
 // REPOSITORIOS
 
 // Categorías
