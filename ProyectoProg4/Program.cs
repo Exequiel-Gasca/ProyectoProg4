@@ -1,7 +1,10 @@
 
 using Application;
+using Domain.Entities;
+using Domain.Enums;
 using Application.Interfaces;
 using Application.Services;
+using Domain.Enums;
 using Domain.Interfaces;
 using Infraestructure;
 using Infraestructure.Repositories;
@@ -19,13 +22,19 @@ var builder = WebApplication.CreateBuilder(args);
 
 // BASE DE DATOS
 
-string connectionString =
-    builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? throw new InvalidOperationException(
-        "No se encontró la cadena de conexión DefaultConnection.");
+bool useInMemory = builder.Configuration.GetValue<bool>("UseInMemoryDatabase");
+
+string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+{
+    if (useInMemory)
+        options.UseInMemoryDatabase("Practica1Db");
+    else
+        options.UseSqlServer(connectionString
+            ?? throw new InvalidOperationException(
+                "No se encontró la cadena de conexión DefaultConnection."));
+});
 
 // REPOSITORIOS
 
@@ -181,6 +190,31 @@ builder.Services.AddSwaggerGen(options =>
 // CONFIGURACION DE LA APLICACION
 
 var app = builder.Build();
+
+if (useInMemory)
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+    // Crea las tablas y carga los roles semilla (Common, Admin, SuperAdmin)
+    db.Database.EnsureCreated();
+
+    // Sin base real no hay migraciones: dejamos un SuperAdmin para poder entrar
+    if (!db.User.Any())
+    {
+        db.User.Add(new User
+        {
+            FirstName = "Super",
+            LastName = "Admin",
+            Email = builder.Configuration["SeedAdmin:Email"] ?? "admin@proyecto.com",
+            PasswordHash = BCrypt.Net.BCrypt.HashPassword(
+                builder.Configuration["SeedAdmin:Password"] ?? "Admin12345!"),
+            IsActive = true,
+            RoleId = (int)RoleType.SuperAdmin
+        });
+        db.SaveChanges();
+    }
+}
 
 app.UseSwagger();
 app.UseSwaggerUI();
