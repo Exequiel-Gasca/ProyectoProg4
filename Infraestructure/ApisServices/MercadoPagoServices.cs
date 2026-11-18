@@ -85,15 +85,37 @@ namespace Infrastructure.ApisServices
 
         public async Task<CajaResponse?> CreateCajasAsync(CajaRequest cajaRequest)
         {
-            string url = "pos";
-            var response = await _client.PostAsJsonAsync(url, cajaRequest);
+            using var requestMessage = new HttpRequestMessage(HttpMethod.Post, "v2/pos");
+            requestMessage.Headers.Add("X-Idempotency-Key", Guid.NewGuid().ToString());
+            requestMessage.Content = JsonContent.Create(cajaRequest);
+
+            using HttpResponseMessage response = await _client.SendAsync(requestMessage);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(
+                    $"Error al crear la caja ({(int)response.StatusCode}): {errorContent}");
+            }
+
             return await response.Content.ReadFromJsonAsync<CajaResponse>();
         }
 
         public async Task<CajaResponse?> UpdateCajasAsync(long Id, CajaRequest cajaRequest)
         {
-            string url = $"pos/{Id}";
-            var response = await _client.PutAsJsonAsync(url, cajaRequest);
+            using var requestMessage = new HttpRequestMessage(HttpMethod.Patch, $"v2/pos/{Id}");
+            requestMessage.Headers.Add("X-Idempotency-Key", Guid.NewGuid().ToString());
+            requestMessage.Content = JsonContent.Create(cajaRequest);
+
+            using HttpResponseMessage response = await _client.SendAsync(requestMessage);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                throw new HttpRequestException(
+                    $"Error al actualizar la caja {Id} ({(int)response.StatusCode}): {errorContent}");
+            }
+
             return await response.Content.ReadFromJsonAsync<CajaResponse>();
         }
 
@@ -183,45 +205,52 @@ namespace Infrastructure.ApisServices
 
         public bool ValidateWebhookSignature(string xSignature, string xRequestId, string dataId)
         {
-            if (string.IsNullOrWhiteSpace(_webhookSecret) || string.IsNullOrWhiteSpace(xSignature))
-                return false;
-
-            string? ts = null;
-            string? hash = null;
-
-            foreach (var part in xSignature.Split(','))
+            if (string.IsNullOrWhiteSpace(_webhookSecret))
             {
-                var eq = part.IndexOf('=');
-                if (eq < 0) continue;
-
-                var key = part[..eq].Trim();
-                var val = part[(eq + 1)..].Trim();
-
-                if (key == "ts") ts = val;
-                if (key == "v1") hash = val;
+                Console.WriteLine("[Webhook] Error: WebhookSecret está vacío en la configuración.");
+                return false;
             }
 
-            if (string.IsNullOrWhiteSpace(ts) || string.IsNullOrWhiteSpace(hash))
+            if (string.IsNullOrWhiteSpace(xSignature) || string.IsNullOrWhiteSpace(xRequestId) || string.IsNullOrWhiteSpace(dataId))
+            {
+                Console.WriteLine($"[Webhook] Faltan datos para validar firma. xSignature='{xSignature}', xRequestId='{xRequestId}', dataId='{dataId}'");
+                return false;
+            }
+
+            string? ts = null;
+            string? v1 = null;
+
+            foreach (var part in xSignature.Split(',', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var kv = part.Split('=', 2);
+                if (kv.Length != 2) continue;
+
+                var key = kv[0].Trim();
+                var val = kv[1].Trim();
+
+                if (key == "ts") ts = val;
+                else if (key == "v1") v1 = val;
+            }
+
+            if (string.IsNullOrWhiteSpace(ts) || string.IsNullOrWhiteSpace(v1))
                 return false;
 
-            var parts = new List<string>();
-            if (!string.IsNullOrWhiteSpace(dataId))
-                parts.Add($"id:{dataId.ToLowerInvariant()}");
-            if (!string.IsNullOrWhiteSpace(xRequestId))
-                parts.Add($"request-id:{xRequestId}");
-            parts.Add($"ts:{ts}");
+            var keyBytes = Encoding.UTF8.GetBytes(_webhookSecret.Trim());
+            using var hmac = new System.Security.Cryptography.HMACSHA256(keyBytes);
 
-            var manifest = string.Join(";", parts) + ";";
+            // Probamos con el ID en minúsculas (requerido por la doc oficial para alfanuméricos) y con el ID original (por el simulador)
+            foreach (var candidateId in new[] { dataId.ToLowerInvariant(), dataId })
+            {
+                var manifest = $"id:{candidateId};request-id:{xRequestId};ts:{ts};";
+                var hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(manifest));
+                var computedHash = Convert.ToHexString(hashBytes).ToLowerInvariant();
 
-            using var hmacSha = new HMACSHA256(Encoding.UTF8.GetBytes(_webhookSecret));
-            var computed = BitConverter
-                .ToString(hmacSha.ComputeHash(Encoding.UTF8.GetBytes(manifest)))
-                .Replace("-", "")
-                .ToLowerInvariant();
+                if (string.Equals(computedHash, v1, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
 
-            return CryptographicOperations.FixedTimeEquals(
-                Encoding.UTF8.GetBytes(computed),
-                Encoding.UTF8.GetBytes(hash));
+            Console.WriteLine($"[Webhook] Firma inválida para dataId='{dataId}'. Revisar que WebhookSecret coincida con el panel de Mercado Pago.");
+            return false;
         }
 
         public async Task ProcessWebhookAsync(WebhookNotificationDto notification)

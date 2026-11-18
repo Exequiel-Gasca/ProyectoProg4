@@ -281,10 +281,17 @@ public class MercadoPagoController : ControllerBase
     [HttpPut("cajas/{id:long}")]
     public async Task<IActionResult> UpdateCaja(long id, [FromBody] CajaRequest request)
     {
-        var caja = await _mercadoPagoService.UpdateCajasAsync(id, request);
-        if (caja == null)
-            return NotFound(new { error = $"No se pudo actualizar la caja con ID {id}." });
+        try
+        {
+            var caja = await _mercadoPagoService.UpdateCajasAsync(id, request);
+            if (caja == null)
+                return NotFound(new { error = $"No se pudo actualizar la caja con ID {id}." });
 
-        return Ok(caja);
+            return Ok(caja);
+        }
+        catch (HttpRequestException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
     }
 }

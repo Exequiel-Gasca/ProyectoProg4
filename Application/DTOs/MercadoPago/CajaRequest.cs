@@ -9,7 +9,7 @@ namespace Application.DTO_s.MercadoPago
     {
         public string Name { get; set; } = string.Empty;
         [JsonPropertyName("store_id")]
-        public int StoreId { get; set; }
+        public string StoreId { get; set; } = string.Empty;
         [JsonPropertyName("external_id")]
         public string ExternalId { get; set; } = string.Empty;
         public required Config Config { get; set; }

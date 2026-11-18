@@ -44,10 +44,12 @@ namespace Application.DTO_s.MercadoPago
         public string? StatusDetail { get; set; }
 
         [JsonPropertyName("total_amount")]
-        public string? TotalAmount { get; set; }
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+        public decimal? TotalAmount { get; set; }
 
         [JsonPropertyName("total_paid_amount")]
-        public string? TotalPaidAmount { get; set; }
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+        public decimal? TotalPaidAmount { get; set; }
 
         [JsonPropertyName("type")]
         public string? Type { get; set; }
@@ -71,10 +73,12 @@ namespace Application.DTO_s.MercadoPago
         public string Id { get; set; } = string.Empty;
 
         [JsonPropertyName("amount")]
-        public string Amount { get; set; } = string.Empty;
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+        public decimal? Amount { get; set; }
 
         [JsonPropertyName("paid_amount")]
-        public string? PaidAmount { get; set; }
+        [JsonNumberHandling(JsonNumberHandling.AllowReadingFromString)]
+        public decimal? PaidAmount { get; set; }
 
         [JsonPropertyName("status")]
         public string Status { get; set; } = string.Empty;
