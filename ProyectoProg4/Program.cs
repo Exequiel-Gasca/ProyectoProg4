@@ -181,9 +181,17 @@ builder.Services.AddSwaggerGen(options =>
 });
 
 // CONFIGURACION DE LA APLICACION
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("FrontendLocal", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173", "http://127.0.0.1:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 var app = builder.Build();
-
+app.UseCors("FrontendLocal");
 if (useInMemory)
 {
     using var scope = app.Services.CreateScope();
